@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from .conv_blocks import ConvBlock
-from .gamma_beta import GammaBeta
+from models.blocks.conv_block import ConvBlock
+from models.blocks.gamma_beta import GammaBeta
 
 
 class ConditionalEmbs(nn.Module):
