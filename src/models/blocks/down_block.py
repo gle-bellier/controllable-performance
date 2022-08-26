@@ -47,17 +47,12 @@ class DownBlock(nn.Module):
 
         Args:
             x (torch.Tensor): input tensor of shape (B C_in L_in).
-            noise_scale (torch.Tensor): noise scale of shape (B, 1).
+            noise_scale (torch.Tensor): noise scale of shape (B, 512).
 
         Returns:
-            torch.Tensor: output tensor of shape (B C_out L_out).
+            torch.Tensor: output tensor of shape (B C_out L_out = L_in // stride).
         """
 
         x = self.dw(x)
         x = self.noise_emb(x, noise_scale)
         return self.residual(x)
-
-
-d = DownBlock(1024, 2, 4, 4, 2)
-
-print(d(torch.randn(13, 2, 1024)))

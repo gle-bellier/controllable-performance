@@ -29,6 +29,6 @@ class GammaBeta(nn.Module):
             number of output features.
         """
         x = self.output_layer(x)
-        x = input.unsqueeze(-1)
+        x = x.unsqueeze(-1)
         gamma, beta = torch.chunk(x, 2, dim=1)
         return gamma, beta
