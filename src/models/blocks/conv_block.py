@@ -12,6 +12,7 @@ class ConvBlock(nn.Module):
             sample_length (int): length L of the sample of shape (B C L).
         """
         super(ConvBlock, self).__init__()
+        self.sample_length = sample_length
         #self.ln = nn.LayerNorm([channels, sample_length])
 
         self.gn = nn.GroupNorm(num_groups=1, num_channels=channels)
