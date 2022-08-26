@@ -6,7 +6,7 @@ from models.blocks.gamma_beta import GammaBeta
 
 class ConditionalEmbs(nn.Module):
 
-    def __init__(self, n_sample: int, in_c: int) -> None:
+    def __init__(self, sample_length: int, in_c: int) -> None:
         """Initialize ConditionalEmbs. Block for 
         conditional embedding.
 
@@ -15,8 +15,8 @@ class ConditionalEmbs(nn.Module):
         """
         super(ConditionalEmbs, self).__init__()
         self.emb = GammaBeta(512, in_c)
-        self.in_conv = ConvBlock(in_c, n_sample)
-        self.out_conv = ConvBlock(in_c, n_sample)
+        self.in_conv = ConvBlock(in_c, sample_length)
+        self.out_conv = ConvBlock(in_c, sample_length)
 
     def forward(self, x: torch.Tensor,
                 noise_scale: torch.Tensor) -> torch.Tensor:

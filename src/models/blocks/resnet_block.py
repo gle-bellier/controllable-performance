@@ -6,16 +6,16 @@ from models.blocks.conv_block import ConvBlock
 
 class ResNetBlock(nn.Module):
 
-    def __init__(self, channels: int, n_sample: int) -> None:
+    def __init__(self, channels: int, sample_length: int) -> None:
         """Initialize ResNetBlock.
 
         Args:
             channels (int): number of channels in the convolutions.
-            n_sample (int): length L of the sample of shape (B C L).
+            sample_length (int): length L of the sample of shape (B C L).
         """
         super(ResNetBlock, self).__init__()
-        self.main = nn.Sequential(ConvBlock(channels, n_sample),
-                                  ConvBlock(channels, n_sample))
+        self.main = nn.Sequential(ConvBlock(channels, sample_length),
+                                  ConvBlock(channels, sample_length))
         self.res = nn.Conv1d(in_channels=channels,
                              out_channels=channels,
                              kernel_size=1,

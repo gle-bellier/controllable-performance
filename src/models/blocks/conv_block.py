@@ -4,15 +4,15 @@ import torch.nn as nn
 
 class ConvBlock(nn.Module):
 
-    def __init__(self, channels: int, n_sample: int) -> None:
+    def __init__(self, channels: int, sample_length: int) -> None:
         """Initialize ConvBlock.
 
         Args:
             channels (int): number of channels in the convolution.
-            n_sample (int): length L of the sample of shape (B C L).
+            sample_length (int): length L of the sample of shape (B C L).
         """
         super(ConvBlock, self).__init__()
-        #self.ln = nn.LayerNorm([channels, n_sample])
+        #self.ln = nn.LayerNorm([channels, sample_length])
 
         self.gn = nn.GroupNorm(num_groups=1, num_channels=channels)
         self.conv = nn.Conv1d(in_channels=channels,

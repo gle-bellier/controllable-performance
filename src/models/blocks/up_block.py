@@ -9,7 +9,7 @@ import numpy as np
 class UpBlock(nn.Module):
 
     def __init__(self,
-                 n_sample: int,
+                 sample_length: int,
                  in_c: int,
                  out_c: int,
                  stride: int,
@@ -18,6 +18,7 @@ class UpBlock(nn.Module):
         """Initialize UpBlock.
 
         Args:
+            sample_length (int): length L of the input of shape (B C L).
             in_c (int): number of input channels in the convolution.
             out_c (int): number of output channels in the convolution.
             stride (int): stride of the convolution.
@@ -28,9 +29,10 @@ class UpBlock(nn.Module):
         super(UpBlock, self).__init__()
         self.skip_co = skip_co
         self.num_resnets = num_resnets
-        self.noise_emb = ConditionalEmbs(n_sample=n_sample, in_c=in_c)
+        self.noise_emb = ConditionalEmbs(sample_length=sample_length,
+                                         in_c=in_c)
         self.residual = nn.Sequential(
-            *[ResNetBlock(in_c, n_sample) for _ in range(num_resnets)])
+            *[ResNetBlock(in_c, sample_length) for _ in range(num_resnets)])
         self.up = nn.ConvTranspose1d(in_channels=in_c,
                                      out_channels=out_c,
                                      kernel_size=3,

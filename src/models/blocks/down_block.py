@@ -7,11 +7,12 @@ from models.blocks.resnet_block import ResNetBlock
 
 class DownBlock(nn.Module):
 
-    def __init__(self, n_sample: int, in_c: int, out_c: int, stride: int,
+    def __init__(self, sample_length: int, in_c: int, out_c: int, stride: int,
                  num_resnets: int) -> None:
         """Initialize DownBlock.
 
         Args:
+            sample_length (int): length L of the input of shape (B C L). 
             in_c (int): number of input channels in convolution.
             out_c (int): number of ouput channels in convolution.
             stride (int): stride of the convolution.
@@ -25,9 +26,10 @@ class DownBlock(nn.Module):
                             stride=stride,
                             padding=self.get_padding(3, stride, 1))
 
-        self.noise_emb = ConditionalEmbs(n_sample=n_sample, in_c=out_c)
+        self.noise_emb = ConditionalEmbs(sample_length=sample_length,
+                                         in_c=out_c)
         self.residual = nn.Sequential(
-            *[ResNetBlock(out_c, n_sample) for _ in range(num_resnets)])
+            *[ResNetBlock(out_c, sample_length) for _ in range(num_resnets)])
 
     def get_padding(self, kernel_size: int, stride: int, dilation: int) -> int:
         """Return size of the padding needed.

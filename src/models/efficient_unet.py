@@ -24,7 +24,7 @@ class EfficientUnet(nn.Module):
         super(EfficientUnet, self).__init__()
 
         h_dims = [32, 128, 512]
-        lengths_sample = [1024 // cs for cs in np.cumprod(strides)]
+        lengths_sample = [sample_length // cs for cs in np.cumprod(strides)]
         self.embedding = RFFBlock(input_dim=1,
                                   rff_dim=32,
                                   mlp_hidden_dims=h_dims)
@@ -33,15 +33,20 @@ class EfficientUnet(nn.Module):
             nn.Conv1d(channels[0], channels[0], kernel_size=1, padding=0),
             nn.SiLU())
         self.dwn_blocks = nn.ModuleList([
-            DownBlock(n_sample, in_c, out_c, stride, num_resnets=n)
-            for n_sample, in_c, out_c, stride, n in zip(
+            DownBlock(sample_length, in_c, out_c, stride, num_resnets=n)
+            for sample_length, in_c, out_c, stride, n in zip(
                 lengths_sample, channels[:-1], channels[1:], strides,
                 num_resnets)
         ])
         skip_co = [True] * (len(strides) - 1) + [False]
         self.up_blocks = nn.ModuleList([
-            UpBlock(n_sample, in_c, out_c, stride, num_resnets=n, skip_co=sc)
-            for n_sample, in_c, out_c, stride, n, sc in zip(
+            UpBlock(sample_length,
+                    in_c,
+                    out_c,
+                    stride,
+                    num_resnets=n,
+                    skip_co=sc)
+            for sample_length, in_c, out_c, stride, n, sc in zip(
                 lengths_sample[::-1], channels[-1:0:-1], channels[-2::-1],
                 strides[::-1], num_resnets[::-1], skip_co)
         ])
