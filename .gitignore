@@ -1,0 +1,12 @@
+.vscode/
+*.pyc
+*.csv
+*.midi
+*.wav
+*.png
+*.ckpt
+*.swp
+*.ts
+*.pickle
+*.mid
+*.cvs
