@@ -6,37 +6,40 @@ from einops import rearrange
 from utils.pickle_tools import read_from_pickle
 
 
-class ContoursProcessor(nn.Module):
+class ContoursProcessor():
 
     def __init__(self, data_range: Tuple[float], train_path: str,
-                 path_ddsp: str) -> None:
+                 ddsp_path: str) -> None:
         super().__init__()
         self.min, self.max = data_range
         self.train_path = pathlib.Path(train_path)
 
-        self.ddsp = self.load_ddsp(path_ddsp)
+        self.ddsp = self.load_ddsp(ddsp_path)
 
-    def load_ddsp(self, path_ddsp: str) -> nn.Module:
+        # fit scaler at init
+        self.fit()
+
+    def load_ddsp(self, ddsp_path: str) -> nn.Module:
         """Load the ddsp module used for sound synthesis.
 
         Args:
-            path_ddsp (str): path to the pretrained ddsp.
+            ddsp_path (str): path to the pretrained ddsp.
 
         Returns:
             nn.Module: ddsp module.
         """
-        if path_ddsp is None:
+        if ddsp_path is None:
             return None
 
         else:
-            ddsp = torch.jit.load(path_ddsp).cuda()
+            ddsp = torch.jit.load(ddsp_path).cuda()
             # freeze ddsp
             for p in ddsp.parameters():
                 p.requires_grad = False
 
             return ddsp
 
-    def _load_train(self):
+    def _load_train(self) -> Tuple[torch.Tensor]:
         """Load the dataset contained in the pickle data file
         indicated by path.
 
@@ -44,11 +47,13 @@ class ContoursProcessor(nn.Module):
             path (pathlib.Path): path to the pickle data file.
 
         Returns:
-            Tuple[np.ndarray]: tuple of contours of pitch and loudness
+            Tuple[torch.Tensor]: tuple of contours of pitch and loudness
             of shape (L, 1).
         """
         contours = next(read_from_pickle(self.train_path))
-        return contours["f0"].reshape(-1, 1), contours["lo"].reshape(-1, 1)
+        f0 = contours["f0"].reshape(-1, 1)
+        lo = contours["lo"].reshape(-1, 1)
+        return torch.Tensor(f0), torch.Tensor(lo)
 
     def _rescale(self, x: torch.Tensor, o_m: float, o_M: float, n_m: float,
                  n_M: float) -> torch.Tensor:
@@ -82,6 +87,11 @@ class ContoursProcessor(nn.Module):
         f0 = 440 * torch.pow(2, (f0 - 69) / 12)
         # artificialy add 2db to the loudness contours
         return self.ddsp(f0, lo + 1.5).squeeze(-1)
+
+    def fit(self):
+        """Fit the scaler to the training dataset.
+        """
+        raise NotImplementedError
 
     def transform(self, x: torch.Tensor) -> torch.Tensor:
         """Apply transform to the input tensor. 
