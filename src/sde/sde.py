@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 
-class SDE():
+class Sde():
 
     def __init__(self):
         self.t_max = 1
@@ -25,7 +25,7 @@ class SDE():
         return mean * x + sigma * noise
 
 
-class VpSdeSigmoid(SDE):
+class VpSdeSigmoid(Sde):
 
     def __init__(self) -> None:
         super().__init__()
@@ -45,7 +45,7 @@ class VpSdeSigmoid(SDE):
         return self.beta(t)**0.5
 
 
-class VpSdeCos(SDE):
+class VpSdeCos(Sde):
 
     def __init__(self) -> None:
         super().__init__()
@@ -72,7 +72,7 @@ class VpSdeCos(SDE):
         return self.beta(t)**0.5
 
 
-class SubVpSdeCos(SDE):
+class SubVpSdeCos(Sde):
 
     def __init__(self) -> None:
         super().__init__()
