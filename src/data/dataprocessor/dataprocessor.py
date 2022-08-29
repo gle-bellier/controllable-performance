@@ -1,7 +1,8 @@
+from copy import deepcopy
 import pathlib
 import torch
 import torch.nn as nn
-from typing import Tuple
+from typing import Tuple, Any
 from einops import rearrange
 from utils.pickle_tools import read_from_pickle
 
@@ -15,6 +16,7 @@ class ContoursProcessor():
         self.train_path = pathlib.Path(train_path)
 
         self.ddsp = self.load_ddsp(ddsp_path)
+        self.inv = False
 
         # fit scaler at init
         self.fit()
@@ -92,6 +94,34 @@ class ContoursProcessor():
         """Fit the scaler to the training dataset.
         """
         raise NotImplementedError
+
+    def __call__(self, x: torch.Tensor) -> torch.Tensor:
+        """Compute the forward transform when called.
+
+        Args:
+            x (torch.Tensor): input tensor of shape (B C L).
+
+        Returns:
+            torch.Tensor: output tensor of shape (B C L).
+        """
+        if self.inv:
+            return self.inverse_transform(x)
+        else:
+            return self.transform(x)
+
+    def __sub__(self, i: int) -> Any:
+        """Returns the inverse processing object.
+
+        Args:
+            i (int): should be one in order to compute f^-1.
+
+        Returns:
+            Any: inverse processor object.
+        """
+        assert i == 1, "i must be 1 to compute inverse processing."
+        t = deepcopy(self)
+        t.inv = not self.inv
+        return t
 
     def transform(self, x: torch.Tensor) -> torch.Tensor:
         """Apply transform to the input tensor. 
