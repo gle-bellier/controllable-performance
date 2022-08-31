@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import Any, Tuple
+from typing import Any, OrderedDict, Tuple, List
 import pytorch_lightning as pl
 
 from data.dataprocessor.dataprocessor import ContoursProcessor
@@ -24,6 +24,9 @@ class Diffusion(pl.LightningModule):
         self.T = transform
         self.sde = sde
         self.sample_length = sample_length
+
+        self.train_step_idx = 0
+        self.val_step_idx = 0
 
     def configure_optimizers(self) -> torch.optim.Optimizer:
         """Configure optimizers.
@@ -76,7 +79,7 @@ class Diffusion(pl.LightningModule):
 
         return sample, audio
 
-    def generate(self, n_samples: int, sample) -> torch.Tensor:
+    def generate(self, n_samples: int) -> torch.Tensor:
 
         self.model.eval()
 
@@ -97,3 +100,25 @@ class Diffusion(pl.LightningModule):
             "contours": (midi_contours, expressive_contours),
             "audio": (midi_audio, expressive_audio)
         }
+
+    def training_step(self, contours: torch.Tensor,
+                      batch_idx: int) -> OrderedDict:
+
+        loss = self(contours)
+        # log the training loss
+        self.log("train_loss", loss)
+
+        self.train_step_idx += 1
+
+        return {"loss": loss}
+
+    def validation_step(self, contours: torch.Tensor,
+                        batch_idx: int) -> OrderedDict:
+
+        loss = self(contours)
+        # log the training loss
+        self.log("val_loss", loss)
+
+        self.val_step_idx += 1
+
+        return {"loss": loss}
