@@ -1,7 +1,7 @@
 import setuptools
 
 setuptools.setup(
-    name="controlable-performance",
+    name="controllable-performance",
     version="0.0.1",
     author="Le Bellier Georges",
     author_email="georges.lebellier@sony.com",
@@ -9,7 +9,7 @@ setuptools.setup(
     "Package for expressive musical performances generation with diffusion models.",
     project_urls={
         "Bug Tracker":
-        "https://github.com/gle-bellier/controlable-performance/issues"
+        "https://github.com/gle-bellier/controllable-performance/issues"
     },
     classifiers=[
         "Programming Language :: Python :: 3",
