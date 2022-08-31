@@ -1,5 +1,5 @@
 .vscode/
-controlable_performance.egg-info/
+controllable_performance.egg-info/
 *.pyc
 *.csv
 *.midi
