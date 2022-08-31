@@ -1,4 +1,5 @@
 .vscode/
+logs/
 controllable_performance.egg-info/
 *.pyc
 *.csv
