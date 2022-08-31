@@ -36,7 +36,7 @@ class Diffusion(pl.LightningModule):
         optimizer = torch.optim.AdamW(self.parameters(),
                                       lr=1e-3,
                                       weight_decay=1e-3)
-        scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer,
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
                                                     step_size=150000,
                                                     gamma=0.5)
         return [optimizer], [scheduler]
@@ -52,7 +52,7 @@ class Diffusion(pl.LightningModule):
 
         # create time batch
         batch_size = contours.shape[0]
-        t = torch.rand(batch_size, 1, device=contours.device)
+        t = torch.rand(batch_size, 1, 1, device=contours.device)
 
         # ensure t in [t_min, t_max)
         t = (self.sde.t_max - self.sde.t_min) * t + self.sde.t_min
@@ -62,7 +62,8 @@ class Diffusion(pl.LightningModule):
 
         # noise contours and predict injected noise
         contours_t = self.sde.perturb(contours, t, z)
-        z_hat = self.model(contours_t, condition, self.sde.sigma(t))
+        noise_scale = self.sde.sigma(t).squeeze(-1)
+        z_hat = self.model(contours_t, condition, noise_scale)
 
         loss = F.mse_loss(z, z_hat)
 
