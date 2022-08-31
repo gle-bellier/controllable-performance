@@ -16,6 +16,7 @@ class Diffusion(pl.LightningModule):
                  data_processor: ContoursProcessor,
                  transform: ConditionTransform,
                  sde: Sde,
+                 sampling_rate: float,
                  sample_length=1024) -> None:
         super().__init__()
 
@@ -23,6 +24,7 @@ class Diffusion(pl.LightningModule):
         self.P = data_processor
         self.T = transform
         self.sde = sde
+        self.sampling_rate = sampling_rate
         self.sample_length = sample_length
 
         self.train_step_idx = 0
@@ -34,7 +36,7 @@ class Diffusion(pl.LightningModule):
             torch.optim.Optimizer: optimizer.
         """
         optimizer = torch.optim.AdamW(self.parameters(),
-                                      lr=1e-3,
+                                      lr=self.sampling_rate,
                                       weight_decay=1e-3)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
                                                     step_size=150000,
