@@ -57,11 +57,12 @@ class Sampler:
         """
         return torch.tensor(array, dtype=torch.float64).to(device=device)
 
-    def striding(self, n_steps: int) -> None:
+    def striding(self, n_steps: int, t0=1.) -> None:
         """Compute the different schedules for sampling.
         Args:
             n_steps (int): number of steps to use during the sampling
             process.
+            t0 (float): starting time of the diffusion process. Defaults to 1..
 
         Raises:
             NotImplementedError: raise error.
@@ -130,11 +131,13 @@ class Sampler:
         """
         raise NotImplementedError
 
-    def jump_step(self, x: torch.Tensor) -> torch.Tensor:
+    def jump_step(self, x: torch.Tensor,
+                  condition: torch.Tensor) -> torch.Tensor:
         """Achieve last step of denoising (aka jump step).
 
         Args:
             x (torch.Tensor): data tensor of shape (B C L).
+            condition (torch.Tensor): condition tensor of shape (B C L).
 
         Raises:
             NotImplementedError: raise error.
@@ -169,7 +172,7 @@ class Sampler:
 
                 x = self.denoising_step(x, condition, n)
 
-            x = self.jump_step(x)
+            x = self.jump_step(x, condition)
 
         return x.reshape(1, -1).to(dtype=torch.float32)
 
