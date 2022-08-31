@@ -165,7 +165,7 @@ class Sampler:
 
         with torch.no_grad():
 
-            for n in tqdm(range(self.n_steps - 1, 0, -1)):
+            for n in tqdm(range(n_steps - 1, 0, -1)):
 
                 x = self.denoising_step(x, condition, n)
 
