@@ -1,0 +1,47 @@
+seed_everything: 42
+trainer:
+  logger:
+    class_path: pytorch_lightning.loggers.TensorBoardLogger
+    init_args:
+      save_dir: "logs"
+      name: "efficient_unet"
+  callbacks:
+    - class_path: pytorch_lightning.callbacks.ModelCheckpoint
+      init_args:
+        save_top_k: -1
+        every_n_epochs: 100
+  max_epochs: 200
+  gpus:
+    - 0
+  auto_lr_find: false
+  track_grad_norm: 2
+  detect_anomaly: true
+model:
+  class_path: train.diffusion.Diffusion
+  init_args:
+    model:
+      class_path: models.efficient_unet.EfficientUnet
+      init_args:
+        sample_length: 1024
+        channels: [2, 16, 32, 64, 128, 512]
+        strides: [1, 1, 2, 2, 2]
+        num_resnets: [2, 2, 3, 3, 5]
+    data_processor:
+      class_path: data.dataprocessor.minmax_processor.MinMaxProcessor
+      init_args:
+        data_range: [-1, 1]
+        train_path: "data/contours/expressive/train.pickle" 
+        ddsp_path: "ddsp_pretrained.ts"
+    transform:
+      class_path: data.transforms.identity.IdentityTransform
+    sde:
+      class_path: sde.sde.SubVpSdeCos
+    sampling_rate: 1e-4
+
+data:
+  class_path: data.datamodule.datamodule.ContoursDataModule
+  init_args:
+    dataset_path: "data/contours/expressive" 
+    batch_size: 32
+    sample_length: 1024
+    data_aug: False
