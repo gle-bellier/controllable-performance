@@ -82,7 +82,7 @@ def test_efficient_unet_shape(input_shape: Tuple[int], channels: List[int],
 
     unet = EfficientUnet(sample_length, channels, strides, num_resnets)
 
-    x = torch.randn(input_shape)
+    x = condition = torch.randn(input_shape)
     noise_scale = torch.randn(batch_size, 1)
 
-    assert unet(x, noise_scale).shape == input_shape
+    assert unet(x, condition, noise_scale).shape == input_shape

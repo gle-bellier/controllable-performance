@@ -55,12 +55,14 @@ class EfficientUnet(nn.Module):
                               kernel_size=1,
                               padding=0)
 
-    def forward(self, x: torch.Tensor,
+    def forward(self, x: torch.Tensor, condition: torch.Tensor,
                 noise_scale: torch.Tensor) -> torch.Tensor:
         """Compute pass forward.
 
         Args:
             x (torch.Tensor): tensor of shape (B C L) with C=2
+            and L=sample_length.
+            condition (torch.Tensor): condition of shape (B C L) with C=2
             and L=sample_length.
             noise_scale (torch.Tensor): noise scale of shape (B 1).
 
