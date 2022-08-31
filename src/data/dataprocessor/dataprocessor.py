@@ -2,14 +2,14 @@ from copy import deepcopy
 import pathlib
 import torch
 import torch.nn as nn
-from typing import Tuple, Any
+from typing import Tuple, Any, List
 from einops import rearrange
 from utils.pickle_tools import read_from_pickle
 
 
 class ContoursProcessor():
 
-    def __init__(self, data_range: Tuple[float], train_path: str,
+    def __init__(self, data_range: List[float], train_path: str,
                  ddsp_path: str) -> None:
         super().__init__()
         self.min, self.max = data_range

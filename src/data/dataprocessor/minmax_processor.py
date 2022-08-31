@@ -1,6 +1,6 @@
 import torch
 
-from typing import Tuple
+from typing import Tuple, List
 from einops import rearrange
 
 from data.dataprocessor.dataprocessor import ContoursProcessor
@@ -13,7 +13,7 @@ class MinMaxProcessor(ContoursProcessor):
         ContoursProcessor () class of scaler for contours.
     """
 
-    def __init__(self, data_range: Tuple[float], train_path: str,
+    def __init__(self, data_range: List[float], train_path: str,
                  ddsp_path: str) -> None:
         super().__init__(data_range, train_path, ddsp_path)
 
