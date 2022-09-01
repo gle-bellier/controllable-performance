@@ -10,8 +10,13 @@ This project aims at using  _Diffusion Models_ for expressive musical performanc
 Then, the main goal is to model fundamental frequency and loudness contours (time series) that are similar to the ones obtained in musical performances (with slight variations of pitch and loudness within a note, and smooth transitions between the notes). 
 We also want our model to be controllable and we propose a way to condition the generation on MIDI files or contours from existing violin performances.
 
+## Train Model:
 
-
+Write an experiment config file `myconfig.yaml` and save it in the `configs/` folder.
+Launch experiment with:
+```
+python src/train/trainer.py --config=configs/myconfigs.pickle
+```
 ## Project Structure
 
 ### Scripts
