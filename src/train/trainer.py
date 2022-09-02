@@ -5,6 +5,10 @@ from train.diffusion import Diffusion
 
 cli = LightningCLI(Diffusion,
                    pl.LightningDataModule,
+                   parser_kwargs={
+                       "parser_mode": "omegaconf",
+                       "default_config_files": ["configs/efficient_unet.yaml"]
+                   },
                    run=False,
                    subclass_mode_model=True,
                    subclass_mode_data=True)
