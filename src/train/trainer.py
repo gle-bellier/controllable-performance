@@ -2,6 +2,9 @@ import pytorch_lightning as pl
 from pytorch_lightning.utilities.cli import LightningCLI
 
 from train.diffusion import Diffusion
+import warnings
+
+warnings.filterwarnings("ignore")
 
 cli = LightningCLI(Diffusion,
                    pl.LightningDataModule,
