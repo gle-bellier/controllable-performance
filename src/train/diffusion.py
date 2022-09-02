@@ -6,24 +6,31 @@ import pytorch_lightning as pl
 
 from data.dataprocessor.dataprocessor import ContoursProcessor
 from data.transforms.transform import ConditionTransform
+from samplers.sampler import Sampler
 from sde.sde import Sde
+
+from utils.batch_tools import plot_batch_contours, listen_batch_contours
 
 
 class Diffusion(pl.LightningModule):
 
     def __init__(self,
-                 model: nn.Module,
                  data_processor: ContoursProcessor,
                  transform: ConditionTransform,
-                 sde: Sde,
+                 sampler: Sampler,
                  sampling_rate: float,
                  sample_length=1024) -> None:
         super().__init__()
 
-        self.model = model
         self.P = data_processor
         self.T = transform
-        self.sde = sde
+
+        self.sampler = sampler
+        # get model and sde
+
+        self.model = self.sampler.model
+        self.sde = self.sampler.sde
+
         self.sampling_rate = sampling_rate
         self.sample_length = sample_length
 
@@ -72,7 +79,11 @@ class Diffusion(pl.LightningModule):
         return loss
 
     def sample(self, condition: torch.Tensor) -> Tuple[torch.Tensor]:
-        sample = self.sampler.sample(condition)
+
+        # apply preprocessing
+        condition = self.P(condition)
+
+        sample = self.sampler.sample(condition, n_steps=100)
 
         # apply inverse processing
         sample = (self.P - 1)(sample)
@@ -124,4 +135,18 @@ class Diffusion(pl.LightningModule):
 
         self.val_step_idx += 1
 
-        return {"loss": loss}
+        return {"loss": loss, "contours": contours}
+
+    def validation_epoch_end(self, batch_parts: List[dict]) -> None:
+
+        # select last item expressive contours
+        contours = batch_parts[-1]["contours"]
+
+        # get samples
+        expressive_contours, expressive_audio = self.sample(contours)
+
+        # plot and listen to the results
+        plot_batch_contours(self.logger.experiment, expressive_contours,
+                            contours, self.val_step_idx)
+        listen_batch_contours(self.logger.experiment, expressive_audio,
+                              self.val_step_idx)
