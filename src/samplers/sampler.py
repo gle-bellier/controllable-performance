@@ -174,14 +174,14 @@ class Sampler:
 
             x = self.jump_step(x, condition)
 
-        return x.reshape(1, -1).to(dtype=torch.float32)
+        return x
 
     def __quantile_value(self, x: torch.Tensor,
                          quantile: float) -> torch.Tensor:
         """Compute the quantile value.
 
         Args:
-            x (torch.Tensor): input tensor of shape (B C*L).
+            x (torch.Tensor): input tensor of shape (B C L).
             quantile (float): quantile.
 
         Returns:
