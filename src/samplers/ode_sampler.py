@@ -74,10 +74,14 @@ class ODESampler(Sampler):
             torch.Tensor: denoised tensor at step n-1 of shape
             (B C L).
         """
+
+        noise_scale = self.sigma_schedule[n] * torch.ones(
+            condition.shape[0], 1, device=condition.device)
+
         return (1 + self.dt * self.beta_schedule[n] /
                 2) * x - self.dt * self.g_schedule[n]**2 / (
                     2 * self.sigma_schedule[n]) * self.model(
-                        x, condition, self.sigma_schedule[n])
+                        x, condition, noise_scale)
 
     def jump_step(self, x: torch.Tensor,
                   condition: torch.Tensor) -> torch.Tensor:
@@ -91,6 +95,7 @@ class ODESampler(Sampler):
         Returns:
             torch.Tensor: denoised tensor of shape (B C L).
         """
+        noise_scale = self.sigma_schedule[0] * torch.ones(
+            condition.shape[0], 1, device=condition.device)
         return (x - self.sigma_schedule[0] * self.model(
-            x, condition, self.sigma_schedule[0])) / self.sde.mean(
-                self.t_schedule[0])
+            x, condition, noise_scale)) / self.sde.mean(self.t_schedule[0])
