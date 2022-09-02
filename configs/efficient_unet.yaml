@@ -10,6 +10,10 @@ trainer:
       init_args:
         save_top_k: -1
         every_n_epochs: 100
+
+    - class_path: pytorch_lightning.callbacks.RichProgressBar
+      init_args:
+        leave: false
   max_epochs: 2000
   gpus:
     - 0
@@ -51,6 +55,6 @@ data:
   class_path: data.datamodule.datamodule.ContoursDataModule
   init_args:
     dataset_path: "data/contours/expressive" 
-    batch_size: 64
+    batch_size: 128
     sample_length: 1024
-    data_aug: True
+    data_aug: true
