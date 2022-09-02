@@ -87,8 +87,11 @@ class ContoursProcessor():
         f0, lo = rearrange(x, "b c l -> c b l 1", c=2)
         # rescale to the frequency range
         f0 = 440 * torch.pow(2, (f0 - 69) / 12)
-        # artificialy add 2db to the loudness contours
-        return self.ddsp(f0, lo + 1.5).squeeze(-1)
+        # artificialy add 1.5db to the loudness contours
+        f0 = torch.clip(f0, 10, 10000)
+        lo = torch.clip(lo + 1.5, -9, -3)
+
+        return self.ddsp(f0, lo).squeeze(-1)
 
     def fit(self):
         """Fit the scaler to the training dataset.
