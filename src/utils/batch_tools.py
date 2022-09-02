@@ -23,12 +23,12 @@ def plot_batch_contours(writer: SummaryWriter, sample: torch.Tensor,
     sample_f0, sample_lo = sample[index].cpu()
     condition_f0, condition_lo = condition[index].cpu()
 
-    plt.plot(sample_f0, "sample")
-    plt.plot(condition_f0, "condition")
+    plt.plot(sample_f0, label="sample")
+    plt.plot(condition_f0, label="condition")
     plt.legend()
     writer.add_figure("f0", plt.gcf(), epoch_id)
-    plt.plot(sample_lo, "sample")
-    plt.plot(condition_lo, "condition")
+    plt.plot(sample_lo, label="sample")
+    plt.plot(condition_lo, label="condition")
     plt.legend()
     writer.add_figure("lo", plt.gcf(), epoch_id)
 
