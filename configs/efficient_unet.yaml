@@ -14,7 +14,8 @@ trainer:
   gpus:
     - 0
   auto_lr_find: false
-  log_every_n_steps: 10
+  log_every_n_steps: 1
+  check_val_every_n_epoch: 10
   track_grad_norm: 2
   gradient_clip_algorithm: "norm"
   gradient_clip_val: 5.
@@ -22,23 +23,28 @@ trainer:
 model:
   class_path: train.diffusion.Diffusion
   init_args:
-    model:
-      class_path: models.efficient_unet.EfficientUnet
-      init_args:
-        sample_length: 1024
-        channels: [2, 16, 32, 64, 128, 512]
-        strides: [1, 1, 2, 2, 2]
-        num_resnets: [2, 2, 3, 3, 5]
     data_processor:
       class_path: data.dataprocessor.minmax_processor.MinMaxProcessor
       init_args:
         data_range: [-1, 1]
         train_path: "data/contours/expressive/train.pickle" 
-        ddsp_path: "ddsp_pretrained.ts"
+        ddsp_path: "ddsp_violin.ts"
     transform:
       class_path: data.transforms.identity.IdentityTransform
-    sde:
-      class_path: sde.sde.SubVpSdeCos
+    sampler:
+      class_path: samplers.ode_sampler.ODESampler
+      init_args:
+        sde:
+          class_path: sde.sde.SubVpSdeCos
+        model:
+          class_path: models.efficient_unet.EfficientUnet
+          init_args:
+            sample_length: 1024
+            channels: [2, 16, 32, 64, 128, 512, 1024]
+            strides: [1, 1, 2, 2, 2, 4]
+            num_resnets: [2, 2, 3, 3, 3, 5]
+        thresholding: "static"
+
     sampling_rate: 1e-4
 
 data:
