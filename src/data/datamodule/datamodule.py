@@ -60,9 +60,9 @@ class ContoursDataModule(pl.LightningDataModule):
 
         self.train = ContoursDataset(train_f0, train_lo, self.sample_length,
                                      "train")
-        self.val = ContoursDataset(val_f0, val_lo, self.sample_length, "train")
+        self.val = ContoursDataset(val_f0, val_lo, self.sample_length, "val")
         self.test = ContoursDataset(test_f0, test_lo, self.sample_length,
-                                    "train")
+                                    "test")
 
     def train_dataloader(self) -> DataLoader:
         """Create and return the train dataloader.

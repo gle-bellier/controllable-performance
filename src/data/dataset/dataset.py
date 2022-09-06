@@ -27,8 +27,9 @@ class ContoursDataset(Dataset):
         self.sample_length = sample_length
 
         assert mode in ['train', 'val',
-                        'eval'], "mode must be either train, val or eval"
+                        'test'], "mode must be either train, val or eval"
         self.mode = mode
+        print(f"{mode} dataset loaded.")
 
         self.f0, self.lo = f0, lo
 
