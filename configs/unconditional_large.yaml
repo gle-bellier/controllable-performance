@@ -56,6 +56,7 @@ data:
   class_path: data.datamodule.datamodule.ContoursDataModule
   init_args:
     dataset_path: "data/contours/expressive" 
-    batch_size: 64
+    batch_size: 128
+    num_workers: 8
     sample_length: 1024
-    data_aug: true
+    data_aug: false

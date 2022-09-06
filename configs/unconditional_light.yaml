@@ -44,17 +44,18 @@ model:
           class_path: models.unconditional_model.UnconditionalUnet
           init_args:
             sample_length: 1024
-            channels: [2, 16, 32,  64, 512]
-            strides: [1, 1, 2, 4]
-            num_resnets: [2, 2, 3, 5]
+            channels: [2, 16, 32,  64, 128, 512]
+            strides: [1, 1, 2, 2, 2]
+            num_resnets: [2, 2, 3, 3,3]
         thresholding: "static"
 
-    learning_rate: 1e-3
+    learning_rate: 1e-4
 
 data:
   class_path: data.datamodule.datamodule.ContoursDataModule
   init_args:
     dataset_path: "data/contours/expressive" 
-    batch_size: 64
+    batch_size: 128
+    num_workers: 8
     sample_length: 1024
-    data_aug: true
+    data_aug: false
