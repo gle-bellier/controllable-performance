@@ -31,7 +31,6 @@ class Diffusion(pl.LightningModule):
         """
         super().__init__()
 
-        self.save_hyperparameters()
         self.P = data_processor
         self.T = transform
 
