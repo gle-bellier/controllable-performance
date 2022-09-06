@@ -8,7 +8,7 @@ from data.dataprocessor.minmax_processor import MinMaxProcessor
 def test_minmax_processor_init():
 
     train_path = "data/contours/expressive/train.pickle"
-    ddsp_path = "ddsp_pretrained.ts"
+    ddsp_path = "ddsp_violin.ts"
     min_max = MinMaxProcessor(data_range=(-1, 1),
                               train_path=train_path,
                               ddsp_path=ddsp_path)
@@ -21,7 +21,7 @@ def test_minmax_transform(data_range):
 
     # init min max scaler
     train_path = "data/contours/expressive/train.pickle"
-    ddsp_path = "ddsp_pretrained.ts"
+    ddsp_path = "ddsp_violin.ts"
     min_max = MinMaxProcessor(data_range=data_range,
                               train_path=train_path,
                               ddsp_path=ddsp_path)
@@ -45,7 +45,7 @@ def test_minmax_inverse_transform(data_range):
 
     # init min max scaler
     train_path = "data/contours/expressive/train.pickle"
-    ddsp_path = "ddsp_pretrained.ts"
+    ddsp_path = "ddsp_violin.ts"
     min_max = MinMaxProcessor(data_range=data_range,
                               train_path=train_path,
                               ddsp_path=ddsp_path)
