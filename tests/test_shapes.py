@@ -75,12 +75,12 @@ def test_efficient_unet_shape(input_shape: Tuple[int], channels: List[int],
         expected (Tuple[int]): expected output shape (B C_out L_out).
     """
 
-    from models.conditional_model import EfficientUnet
+    from models.conditional_model import ConditionalUnet
 
     batch_size = input_shape[0]
     sample_length = input_shape[-1]
 
-    unet = EfficientUnet(sample_length, channels, strides, num_resnets)
+    unet = ConditionalUnet(sample_length, channels, strides, num_resnets)
 
     x = condition = torch.randn(input_shape)
     noise_scale = torch.randn(batch_size, 1)

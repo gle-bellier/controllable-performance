@@ -6,7 +6,7 @@ import torch.nn as nn
 from .blocks import RFFBlock, UpBlock, DownBlock
 
 
-class EfficientUnet(nn.Module):
+class UnconditionalUnet(nn.Module):
 
     def __init__(self, sample_length: int, channels: List[int],
                  strides: List[int], num_resnets: List[int]) -> None:
@@ -21,7 +21,7 @@ class EfficientUnet(nn.Module):
             down/upsampling block (symetrie).
         """
 
-        super(EfficientUnet, self).__init__()
+        super(UnconditionalUnet, self).__init__()
 
         h_dims = [32, 128, 512]
         lengths_sample = [sample_length // cs for cs in np.cumprod(strides)]
