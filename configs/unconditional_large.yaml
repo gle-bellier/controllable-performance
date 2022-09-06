@@ -4,7 +4,7 @@ trainer:
     class_path: pytorch_lightning.loggers.TensorBoardLogger
     init_args:
       save_dir: "logs"
-      name: "large_unet"
+      name: "large_unconditional"
   callbacks:
     - class_path: pytorch_lightning.callbacks.ModelCheckpoint
       init_args:
@@ -14,7 +14,7 @@ trainer:
     - class_path: pytorch_lightning.callbacks.RichProgressBar
       init_args:
         leave: false
-  max_epochs: 2000
+  max_epochs: 200000
   gpus:
     - 0
   auto_lr_find: false
@@ -25,7 +25,7 @@ trainer:
   gradient_clip_val: 5.
   detect_anomaly: true
 model:
-  class_path: train.diffusion.Diffusion
+  class_path: train.unconditional_diffusion.UnconditionalDiffusion
   init_args:
     data_processor:
       class_path: data.dataprocessor.minmax_processor.MinMaxProcessor
@@ -41,16 +41,16 @@ model:
         sde:
           class_path: sde.sde.SubVpSdeCos
         model:
-          class_path: models.efficient_unet.EfficientUnet
+          class_path: models.unconditional_model.UnconditionalUnet
           init_args:
             sample_length: 1024
-            channels: [2, 16, 32, 64, 128, 512, 1024]
-            strides: [1, 1, 2, 2, 2, 2]
-            num_resnets: [2, 2, 3, 3, 5, 5]
+            channels: [2, 32, 64, 128, 512, 1024]
+            strides: [1, 1, 1, 2, 2]
+            num_resnets: [1, 1, 2, 3, 3]
         
         thresholding: "static"
 
-    sampling_rate: 1e-3
+    learning_rate: 1e-4
 
 data:
   class_path: data.datamodule.datamodule.ContoursDataModule
