@@ -1,12 +1,10 @@
 import pytorch_lightning as pl
 from pytorch_lightning.utilities.cli import LightningCLI
-
-from train.diffusion import Diffusion
 import warnings
 
 warnings.filterwarnings("ignore")
 
-cli = LightningCLI(Diffusion,
+cli = LightningCLI(pl.LightningModule,
                    pl.LightningDataModule,
                    parser_kwargs={
                        "parser_mode": "omegaconf",
