@@ -4,7 +4,7 @@ trainer:
     class_path: pytorch_lightning.loggers.TensorBoardLogger
     init_args:
       save_dir: "logs"
-      name: "efficient_unet"
+      name: "ligth_unet"
   callbacks:
     - class_path: pytorch_lightning.callbacks.ModelCheckpoint
       init_args:
@@ -41,7 +41,7 @@ model:
         sde:
           class_path: sde.sde.SubVpSdeCos
         model:
-          class_path: models.efficient_unet.EfficientUnet
+          class_path: models.unconditional_model.Efficient_Unet
           init_args:
             sample_length: 1024
             channels: [2, 16, 32,  64, 512]
