@@ -7,7 +7,6 @@ import pytorch_lightning as pl
 from data.dataprocessor.dataprocessor import ContoursProcessor
 from data.transforms.transform import ConditionTransform
 from samplers.sampler import Sampler
-from sde.sde import Sde
 
 from utils.batch_tools import plot_batch_contours, listen_batch_contours
 
@@ -22,6 +21,7 @@ class Diffusion(pl.LightningModule):
                  sample_length=1024) -> None:
         super().__init__()
 
+        self.save_hyperparameters()
         self.P = data_processor
         self.T = transform
 
