@@ -13,12 +13,14 @@ class ContoursDataModule(pl.LightningDataModule):
     def __init__(self,
                  dataset_path: str,
                  batch_size: int,
+                 num_workers: int,
                  sample_length: int,
                  data_aug=False) -> None:
         super().__init__()
 
         self.dataset_path = pathlib.Path(dataset_path)
         self.batch_size = batch_size
+        self.num_workers = num_workers
         self.data_aug = data_aug
         self.sample_length = sample_length
 
@@ -72,7 +74,7 @@ class ContoursDataModule(pl.LightningDataModule):
         """
         return DataLoader(self.train,
                           batch_size=self.batch_size,
-                          num_workers=32)
+                          num_workers=self.num_workers)
 
     def val_dataloader(self) -> DataLoader:
         """Create and return the validation dataloader.
@@ -80,7 +82,9 @@ class ContoursDataModule(pl.LightningDataModule):
         Returns:
             DataLoader: validation dataloader.
         """
-        return DataLoader(self.val, batch_size=self.batch_size, num_workers=32)
+        return DataLoader(self.val,
+                          batch_size=self.batch_size,
+                          num_workers=self.num_workers)
 
     def test_dataloader(self) -> DataLoader:
         """Create and return the test dataloader.
@@ -90,4 +94,4 @@ class ContoursDataModule(pl.LightningDataModule):
         """
         return DataLoader(self.test,
                           batch_size=self.batch_size,
-                          num_workers=32)
+                          num_workers=self.num_workers)
