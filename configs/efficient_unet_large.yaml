@@ -4,7 +4,7 @@ trainer:
     class_path: pytorch_lightning.loggers.TensorBoardLogger
     init_args:
       save_dir: "logs"
-      name: "unet"
+      name: "large_unet"
   callbacks:
     - class_path: pytorch_lightning.callbacks.ModelCheckpoint
       init_args:
@@ -44,9 +44,10 @@ model:
           class_path: models.efficient_unet.EfficientUnet
           init_args:
             sample_length: 1024
-            channels: [2, 16, 64, 512, 1024]
-            strides: [1, 1, 2, 2,]
-            num_resnets: [2, 2, 3, 3]
+            channels: [2, 16, 32, 64, 128, 512, 1024]
+            strides: [1, 1, 2, 2, 2, 2]
+            num_resnets: [2, 2, 3, 3, 5, 5]
+        
         thresholding: "static"
 
     sampling_rate: 1e-3
