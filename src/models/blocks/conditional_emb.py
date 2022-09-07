@@ -44,7 +44,7 @@ class ConditionEmbedder(nn.Module):
             torch.Tensor: output tensor of shape (B C L). 
         """
         if self.conditional:
-            x = x + self.contours_embedder(contours)
+            x = x - self.contours_embedder(contours)
 
         res = self.in_conv(x)
         gamma, beta = self.noise_embedder(noise_scale)
