@@ -26,7 +26,11 @@ def test_datamodule_element_shape():
     dataset_path = "data/contours/expressive"
     sample_length = 1024
     batch_size = 32
-    dm = ContoursDataModule(dataset_path, batch_size, sample_length, False)
+    dm = ContoursDataModule(dataset_path,
+                            batch_size,
+                            num_workers=0,
+                            sample_length=sample_length,
+                            data_aug=False)
 
     dm.setup()
     train = dm.train_dataloader()
