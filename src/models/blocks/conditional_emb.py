@@ -27,7 +27,7 @@ class ConditionEmbedder(nn.Module):
         if self.conditional:
             self.contours_embedder = nn.Sequential(
                 ConvBlock(sample_length, 2, in_c),
-                nn.Linear(sample_length, input_length), nn.SiLU())
+                nn.Linear(sample_length, input_length), nn.LeakyReLU())
 
     def forward(self, x: torch.Tensor, contours: torch.Tensor,
                 noise_scale: torch.Tensor) -> torch.Tensor:

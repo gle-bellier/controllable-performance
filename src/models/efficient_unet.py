@@ -37,7 +37,7 @@ class EfficientUnet(nn.Module):
 
         self.pre = nn.Sequential(
             nn.Conv1d(channels[0], channels[0], kernel_size=1, padding=0),
-            nn.SiLU())
+            nn.LeakyReLU())
         self.dwn_blocks = nn.ModuleList([
             DownBlock(sample_length=sample_length,
                       input_length=input_length,

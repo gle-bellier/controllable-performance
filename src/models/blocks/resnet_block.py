@@ -20,7 +20,7 @@ class ResNetBlock(nn.Module):
             nn.Conv1d(in_channels=in_c,
                       out_channels=in_c,
                       kernel_size=1,
-                      padding=0), nn.SiLU())
+                      padding=0), nn.LeakyReLU())
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Compute pass forward.

@@ -49,7 +49,7 @@ class UpBlock(nn.Module):
                                kernel_size=3,
                                stride=stride,
                                padding=self.get_padding(3, stride, 1),
-                               output_padding=stride - 1), nn.SiLU())
+                               output_padding=stride - 1), nn.LeakyReLU())
 
     def get_padding(self, kernel_size: int, stride: int, dilation: int) -> int:
         """Return size of the padding needed.

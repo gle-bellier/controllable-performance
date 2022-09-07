@@ -22,7 +22,7 @@ class ConvBlock(nn.Module):
                               kernel_size=3,
                               stride=1,
                               padding=self.get_padding(3, 1, 1))
-        self.swish = nn.SiLU()
+        self.swish = nn.LeakyReLU()
 
     def get_padding(self, kernel_size: int, stride: int, dilation: int) -> int:
         """Return size of the padding needed.

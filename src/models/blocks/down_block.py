@@ -30,7 +30,7 @@ class DownBlock(nn.Module):
                       out_channels=out_c,
                       kernel_size=3,
                       stride=stride,
-                      padding=self.get_padding(3, stride, 1)), nn.SiLU())
+                      padding=self.get_padding(3, stride, 1)), nn.LeakyReLU())
 
         self.embedder = ConditionEmbedder(sample_length=sample_length,
                                           input_length=input_length // stride,
