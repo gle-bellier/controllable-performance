@@ -1,9 +1,10 @@
+from random import sample
 import numpy as np
 from typing import List
 import torch
 import torch.nn as nn
 
-from .blocks import RFFBlock, UpBlock, DownBlock
+from models.blocks import RFFBlock, UpBlock, DownBlock
 
 
 class EfficientUnet(nn.Module):
@@ -27,7 +28,9 @@ class EfficientUnet(nn.Module):
         super(EfficientUnet, self).__init__()
 
         h_dims = [32, 128, 512]
-        input_lengths = [sample_length // cs for cs in np.cumprod(strides)]
+        input_lengths = [sample_length] + [
+            sample_length // cs for cs in np.cumprod(strides)
+        ]
         self.noise_rff = RFFBlock(input_dim=1,
                                   rff_dim=32,
                                   mlp_hidden_dims=h_dims)
@@ -95,3 +98,18 @@ class EfficientUnet(nn.Module):
             x = up(x, condition, noise_scale, skip)
 
         return self.post(x)
+
+
+if __name__ == "__main__":
+
+    x = torch.randn(13, 2, 1024)
+    condition = torch.randn(13, 2, 1024)
+    noise_scale = torch.randn(13, 1)
+
+    model = EfficientUnet(sample_length=1024,
+                          channels=[2, 8, 16, 32, 64],
+                          strides=[2, 2, 2, 2],
+                          num_resnets=[1, 1, 3, 3],
+                          conditional=True)
+
+    model(x, condition, noise_scale)
