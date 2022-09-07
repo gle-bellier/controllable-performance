@@ -6,20 +6,21 @@ from models.blocks.conv_block import ConvBlock
 
 class ResNetBlock(nn.Module):
 
-    def __init__(self, channels: int, sample_length: int) -> None:
+    def __init__(self, input_length: int, in_c: int) -> None:
         """Initialize ResNetBlock.
 
         Args:
-            channels (int): number of channels in the convolutions.
-            sample_length (int): length L of the sample of shape (B C L).
+            input_length (int): length L of the sample of shape (B C L).
+            in_c (int): number of input channels.
         """
         super(ResNetBlock, self).__init__()
-        self.main = nn.Sequential(ConvBlock(channels, sample_length),
-                                  ConvBlock(channels, sample_length))
-        self.res = nn.Conv1d(in_channels=channels,
-                             out_channels=channels,
-                             kernel_size=1,
-                             padding=0)
+        self.main = nn.Sequential(ConvBlock(input_length, in_c, in_c),
+                                  ConvBlock(input_length, in_c, in_c))
+        self.res = nn.Sequential(
+            nn.Conv1d(in_channels=in_c,
+                      out_channels=in_c,
+                      kernel_size=1,
+                      padding=0), nn.SiLU())
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Compute pass forward.
