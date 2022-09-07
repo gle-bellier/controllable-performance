@@ -1,4 +1,6 @@
 import torch
+import torch.nn.functional as F
+
 from typing import Any, OrderedDict, Tuple, List
 import pytorch_lightning as pl
 
@@ -67,14 +69,41 @@ class Diffusion(pl.LightningModule):
             contours (torch.Tensor): input conditioning contours
             of shape (B C L).
 
-        Raises:
-            NotImplementedError: error raised if not implemented.
-
         Returns:
             torch.Tensor: loss.
         """
 
-        raise NotImplementedError
+        if torch.rand(1) > self.conditional_rate:
+            # unconditional generation
+            # with "mean contours" ie approx nul contours
+            condition = torch.zeros_like(contours)
+        else:
+            # condition generation
+            # condition = transformed (blurred/filtered) contours
+            condition = self.T(contours)
+
+        # preprocess the data
+        contours = self.P(contours)
+        condition = self.P(condition)
+
+        # create time batch
+        batch_size = contours.shape[0]
+        t = torch.rand(batch_size, 1, 1, device=contours.device)
+
+        # ensure t in [t_min, t_max)
+        t = (self.sde.t_max - self.sde.t_min) * t + self.sde.t_min
+
+        # sample noise z
+        z = torch.randn_like(contours, device=contours.device)
+
+        # noise contours and predict injected noise
+        contours_t = self.sde.perturb(contours, t, z)
+        noise_scale = self.sde.sigma(t).squeeze(-1)
+        z_hat = self.model(contours_t, condition, noise_scale)
+
+        loss = F.mse_loss(z, z_hat)
+
+        return loss
 
     def sample(self, condition: torch.Tensor) -> Tuple[torch.Tensor]:
         """Sample new contours.
