@@ -18,6 +18,7 @@ class Diffusion(pl.LightningModule):
                  transform: ConditionTransform,
                  sampler: Sampler,
                  learning_rate: float,
+                 conditional_rate: 0.3,
                  sample_length=1024) -> None:
         """Initialize denoising diffusion model.
 
@@ -28,6 +29,9 @@ class Diffusion(pl.LightningModule):
             signal.
             sampler (Sampler): denoising diffusion sampler.
             learning_rate (float): training learning rate. 
+            conditional_rate (float): probability p of training the model without the condition 
+            (in the conditional training scenario, for unconditional training it has no effet 
+            on the training).
             sample_length (int, optional): length L of contours of shape (B C L).
             Defaults to 1024.
         """
@@ -43,6 +47,7 @@ class Diffusion(pl.LightningModule):
         self.sde = self.sampler.sde
 
         self.learning_rate = learning_rate
+        self.conditional_rate = conditional_rate
         self.sample_length = sample_length
 
         self.train_step_idx = 0
