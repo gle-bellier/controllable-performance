@@ -25,7 +25,7 @@ trainer:
   gradient_clip_val: 5.
   detect_anomaly: true
 model:
-  class_path: train.unconditional_diffusion.UnconditionalDiffusion
+  class_path: train.diffusion.Diffusion
   init_args:
     data_processor:
       class_path: data.dataprocessor.minmax_processor.MinMaxProcessor
@@ -41,16 +41,18 @@ model:
         sde:
           class_path: sde.sde.SubVpSdeCos
         model:
-          class_path: models.unconditional_model.UnconditionalUnet
+          class_path: models.efficient_unet.EfficientUnet
           init_args:
             sample_length: 1024
             channels: [2, 32, 64, 128, 512, 1024]
-            strides: [1, 1, 1, 2, 2]
-            num_resnets: [1, 1, 2, 3, 3]
+            strides: [2, 2, 2, 2, 2]
+            num_resnets: [1, 1, 3, 3, 5]
+            conditional: true
         
         thresholding: "static"
 
     learning_rate: 1e-4
+    conditional_rate: false
 
 data:
   class_path: data.datamodule.datamodule.ContoursDataModule
