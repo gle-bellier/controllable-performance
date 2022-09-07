@@ -18,7 +18,7 @@ class Diffusion(pl.LightningModule):
                  transform: ConditionTransform,
                  sampler: Sampler,
                  learning_rate: float,
-                 conditional_rate: 0.3,
+                 conditional_rate=0.3,
                  sample_length=1024) -> None:
         """Initialize denoising diffusion model.
 
