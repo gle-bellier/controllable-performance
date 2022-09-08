@@ -1,0 +1,67 @@
+seed_everything: 42
+trainer:
+  logger:
+    class_path: pytorch_lightning.loggers.TensorBoardLogger
+    init_args:
+      save_dir: "logs"
+      name: "conditional"
+  callbacks:
+    - class_path: pytorch_lightning.callbacks.ModelCheckpoint
+      init_args:
+        save_top_k: -1
+        every_n_epochs: 100
+
+    - class_path: pytorch_lightning.callbacks.RichProgressBar
+      init_args:
+        leave: false
+  max_epochs: 200000
+  gpus:
+    - 0
+  auto_lr_find: false
+  log_every_n_steps: 1
+  check_val_every_n_epoch: 10
+  track_grad_norm: 2
+  gradient_clip_algorithm: "norm"
+  gradient_clip_val: 5.
+  detect_anomaly: true
+model:
+  class_path: train.diffusion.Diffusion
+  init_args:
+    data_processor:
+      class_path: data.dataprocessor.minmax_processor.MinMaxProcessor
+      init_args:
+        data_range: [-1, 1]
+        train_path: "data/contours/expressive/urmp/train.pickle" 
+        ddsp_path: "ddsp_violin.ts"
+    transform:
+      class_path: data.transforms.blur.Blur
+      init_args:
+        sample_length: 1024
+        sigma: 4
+    sampler:
+      class_path: samplers.ode_sampler.ODESampler
+      init_args:
+        sde:
+          class_path: sde.sde.SubVpSdeCos
+        model:
+          class_path: models.efficient_unet.EfficientUnet
+          init_args:
+            sample_length: 1024
+            channels: [2, 32, 64, 128, 256, 512, 1024]
+            strides: [2, 2, 2, 2, 2, 2]
+            num_resnets: [1, 1, 3, 3, 3, 5]
+            conditional: true
+        
+        thresholding: "static"
+
+    learning_rate: 1e-3
+    conditional_rate: 0.9
+
+data:
+  class_path: data.datamodule.datamodule.ContoursDataModule
+  init_args:
+    dataset_path: "data/contours/expressive/urmp" 
+    batch_size: 128
+    num_workers: 8
+    sample_length: 1024
+    data_aug: false
