@@ -88,29 +88,31 @@ class Diffusion(pl.LightningModule):
             condition = self.T(contours)
 
         # preprocess the data
-        contours = self.P(contours)
-        condition = self.P(condition)
+        scaled_contours = self.P(contours)
+        scaled_condition = self.P(condition)
 
         # create time batch
         batch_size = contours.shape[0]
-        t = torch.rand(batch_size, 1, 1, device=contours.device)
+        t = torch.rand(batch_size, 1, 1, device=scaled_contours.device)
 
         # ensure t in [t_min, t_max)
         t = (self.sde.t_max - self.sde.t_min) * t + self.sde.t_min
 
         # sample noise z
-        z = torch.randn_like(contours, device=contours.device)
+        z = torch.randn_like(scaled_contours, device=scaled_contours.device)
 
         # noise contours and predict injected noise
-        contours_t = self.sde.perturb(contours, t, z)
+        contours_t = self.sde.perturb(scaled_contours, t, z)
         noise_scale = self.sde.sigma(t).squeeze(-1)
-        z_hat = self.model(contours_t, condition, noise_scale)
+
+        # noise prediction
+        z_hat = self.model(contours_t, scaled_condition, noise_scale)
 
         loss = F.mse_loss(z, z_hat)
 
         return loss
 
-    def sample(self, condition: torch.Tensor) -> Tuple[torch.Tensor]:
+    def sample(self, contours: torch.Tensor) -> Tuple[torch.Tensor]:
         """Sample new contours.
 
         Args:
@@ -122,7 +124,8 @@ class Diffusion(pl.LightningModule):
             and audio generated of shape (B L*sampling_rate).
         """
 
-        # apply preprocessing
+        # apply transform and then preprocessing
+        condition = self.T(contours)
         condition = self.P(condition)
 
         sample = self.sampler.sample(condition, n_steps=100)
