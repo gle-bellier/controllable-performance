@@ -135,39 +135,6 @@ class Diffusion(pl.LightningModule):
 
         return sample, audio
 
-    def generate(self, n_samples: int) -> dict:
-        """Generate contours from MIDI and expressive contours.
-
-        Args:
-            n_samples (int): number of contours to generate in 
-            the two categories (from MIDI and from expressive 
-            contours).
-
-        Returns:
-            dict: {
-            "contours": (midi_contours, expressive_contours),
-            "audio": (midi_audio, expressive_audio)
-        } 
-        """
-
-        # get midi contours as condition
-        midi = self.get_midi(n_samples, self.sample_length)
-        midi = self.T(midi)
-        midi = self.P(midi)
-
-        # get expressive contours as condition
-        expressive = self.get_expressive(n_samples.self.sample_length)
-        expressive = self.P(expressive)
-
-        # get samples
-        midi_contours, midi_audio = self.sample(midi)
-        expressive_contours, expressive_audio = self.sample(expressive)
-
-        return {
-            "contours": (midi_contours, expressive_contours),
-            "audio": (midi_audio, expressive_audio)
-        }
-
     def training_step(self, contours: torch.Tensor,
                       batch_idx: int) -> OrderedDict:
         """Compute training step.
