@@ -1,5 +1,3 @@
-from termios import FF0
-import torch
 import matplotlib.pyplot as plt
 
 from data.datamodule.datamodule import ContoursDataModule
