@@ -61,7 +61,7 @@ data:
   class_path: data.datamodule.datamodule.ContoursDataModule
   init_args:
     dataset_path: "data/contours/expressive/urmp" 
-    batch_size: 64
-    num_workers: 8
+    batch_size: 128
+    num_workers: 32
     sample_length: 1024
     data_aug: true

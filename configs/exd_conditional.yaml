@@ -62,6 +62,6 @@ data:
   init_args:
     dataset_path: "data/contours/expressive/extended" 
     batch_size: 64
-    num_workers: 8
+    num_workers: 32
     sample_length: 1024
     data_aug: false
