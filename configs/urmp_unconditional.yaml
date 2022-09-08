@@ -4,7 +4,7 @@ trainer:
     class_path: pytorch_lightning.loggers.TensorBoardLogger
     init_args:
       save_dir: "logs"
-      name: "unconditional"
+      name: "urmp_unconditional"
   callbacks:
     - class_path: pytorch_lightning.callbacks.ModelCheckpoint
       init_args:
@@ -58,7 +58,7 @@ data:
   class_path: data.datamodule.datamodule.ContoursDataModule
   init_args:
     dataset_path: "data/contours/expressive/urmp" 
-    batch_size: 128
+    batch_size: 64
     num_workers: 8
     sample_length: 1024
-    data_aug: false
+    data_aug: true
