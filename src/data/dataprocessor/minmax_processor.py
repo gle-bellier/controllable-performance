@@ -1,7 +1,6 @@
 import torch
 
 from typing import Tuple, List
-from einops import rearrange
 
 from data.dataprocessor.dataprocessor import ContoursProcessor
 
@@ -12,10 +11,6 @@ class MinMaxProcessor(ContoursProcessor):
     Args:
         ContoursProcessor () class of scaler for contours.
     """
-
-    def __init__(self, data_range: List[float], train_path: str,
-                 ddsp_path: str) -> None:
-        super().__init__(data_range, train_path, ddsp_path)
 
     def fit(self):
         """Compute the min max values of the train set.
@@ -37,14 +32,15 @@ class MinMaxProcessor(ContoursProcessor):
             torch.Tensor: output tensor of shape (B C L).
         """
 
-        f0, lo = rearrange(x, "b c l -> c b l")
+        f0 = x[:, 0:1, :]
+        lo = x[:, 1:2, :]
 
         f0 = self._rescale(f0, self.train_f0_min, self.train_f0_max, self.min,
                            self.max)
         lo = self._rescale(lo, self.train_lo_min, self.train_lo_max, self.min,
                            self.max)
 
-        out = rearrange([f0, lo], "c b l -> b c l")
+        out = torch.cat((f0, lo), dim=-2)
         return out
 
     def inverse_transform(self, x: torch.Tensor) -> torch.Tensor:
@@ -57,12 +53,13 @@ class MinMaxProcessor(ContoursProcessor):
             torch.Tensor: output tensor of shape (B C L).
         """
 
-        f0, lo = rearrange(x, "b c l -> c b l")
+        f0 = x[:, 0:1, :]
+        lo = x[:, 1:2, :]
 
         f0 = self._rescale(f0, self.min, self.max, self.train_f0_min,
                            self.train_f0_max)
         lo = self._rescale(lo, self.min, self.max, self.train_lo_min,
                            self.train_lo_max)
 
-        out = rearrange([f0, lo], "c b l -> b c l")
+        out = torch.cat([f0, lo], dim=-2)
         return out
