@@ -98,18 +98,3 @@ class EfficientUnet(nn.Module):
             x = up(x, condition, noise_scale, skip)
 
         return self.post(x)
-
-
-if __name__ == "__main__":
-
-    x = torch.randn(13, 2, 1024)
-    condition = torch.randn(13, 2, 1024)
-    noise_scale = torch.randn(13, 1)
-
-    model = EfficientUnet(sample_length=1024,
-                          channels=[2, 8, 16, 32, 64],
-                          strides=[2, 2, 2, 2],
-                          num_resnets=[1, 1, 3, 3],
-                          conditional=True)
-
-    model(x, condition, noise_scale)

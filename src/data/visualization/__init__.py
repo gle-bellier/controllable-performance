@@ -13,7 +13,7 @@ def read_from_pickle(path):
             pass
 
 
-PATH = "data/contours/expressive/val.pickle"
+PATH = "data/contours/expressive/extended/val.pickle"
 
 f0 = lo = np.array([])
 
