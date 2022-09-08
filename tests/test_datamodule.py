@@ -8,7 +8,7 @@ def test_datamodule_init():
     """
     from data.datamodule.datamodule import ContoursDataModule
 
-    dataset_path = "data/contours/expressive"
+    dataset_path = "data/contours/expressive/extended"
     dm = ContoursDataModule(dataset_path, 32, 1024, False)
 
     dm.setup()
@@ -23,7 +23,7 @@ def test_datamodule_element_shape():
     """
     from data.datamodule.datamodule import ContoursDataModule
 
-    dataset_path = "data/contours/expressive"
+    dataset_path = "data/contours/expressive/extended"
     sample_length = 1024
     batch_size = 32
     dm = ContoursDataModule(dataset_path,
