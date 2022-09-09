@@ -2,6 +2,7 @@ import pathlib
 import numpy as np
 from typing import List, Tuple, Optional
 import pytorch_lightning as pl
+import torch
 from torch.utils.data import DataLoader
 
 from data.dataset.dataset import ContoursDataset
@@ -39,6 +40,32 @@ class ContoursDataModule(pl.LightningDataModule):
         """
         contours = next(read_from_pickle(path))
         return contours["f0"], contours["lo"]
+
+    def get_mean_contours(self, batch_size: int) -> torch.Tensor:
+        """Compute mean contours for unconditional pass forward 
+        in conditional training.
+
+        Args:
+            batch_size (int): batch size B of the mean contour
+            of shape (B C L).
+
+        Returns:
+            torch.Tensor: mean contour tensor of shape (B C L).
+        """
+        if self.data_aug:
+            train_file = "train_aug.pickle"
+        else:
+            train_file = "train.pickle"
+
+        train_path = self.dataset_path / pathlib.Path(train_file)
+        f0, lo = self.__load(train_path)
+
+        # compute mean contours
+        mean = torch.ones(batch_size, 2, self.sample_length)
+        mean[:, 0, :] *= np.mean(f0)
+        mean[:, 1, :] *= np.mean(lo)
+
+        return mean
 
     def setup(self, stage: Optional[str] = None) -> None:
         """Set up and load the different datasets.
