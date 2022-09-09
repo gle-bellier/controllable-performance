@@ -67,7 +67,7 @@ class Diffusion(pl.LightningModule):
                                                     gamma=0.5)
         return [optimizer], [scheduler]
 
-    def forward(self, contours: torch.Tensor) -> torch.Tensor:
+    def forward(self, contours: torch.Tensor) -> Tuple[torch.Tensor]:
         """Compute denoising diffusion model forward pass.
 
         Args:
@@ -75,7 +75,9 @@ class Diffusion(pl.LightningModule):
             of shape (B C L).
 
         Returns:
-            torch.Tensor: loss.
+            Tuple[torch.Tensor]: loss tensor and denoised contours 
+            of shape (B C L).
+            
         """
 
         if torch.rand(1) > self.conditional_rate:
@@ -93,10 +95,15 @@ class Diffusion(pl.LightningModule):
 
         # create time batch
         batch_size = contours.shape[0]
-        t = torch.rand(batch_size, 1, 1, device=scaled_contours.device)
+
+        # make sure the batch covers the range [0, 1] uniformly with a random offset
+
+        t = (torch.rand(1, device=scaled_contours.device) + torch.arange(
+            batch_size, device=scaled_contours.device) / batch_size) % 1
 
         # ensure t in [t_min, t_max)
-        t = (self.sde.t_max - self.sde.t_min) * t + self.sde.t_min
+        t = (self.sde.t_max - self.sde.t_min) * t.reshape(-1, 1,
+                                                          1) + self.sde.t_min
 
         # sample noise z
         z = torch.randn_like(scaled_contours, device=scaled_contours.device)
@@ -107,10 +114,15 @@ class Diffusion(pl.LightningModule):
 
         # noise prediction
         z_hat = self.model(contours_t, scaled_condition, noise_scale)
-
+        # compute loss
         loss = F.mse_loss(z, z_hat)
 
-        return loss
+        # compute denoised contours
+        contours_hat = self.sde.perturb_inv(contours_t, z_hat, t)
+        # apply post processing
+        contours_hat = (self.P - 1)(contours_hat)
+
+        return loss, contours_hat
 
     def sample(self, contours: torch.Tensor) -> Tuple[torch.Tensor]:
         """Sample new contours.
@@ -151,11 +163,14 @@ class Diffusion(pl.LightningModule):
             OrderedDict: {"loss"}
         """
 
-        loss = self(contours)
+        loss, contours_hat = self(contours)
         # log the training loss
         self.log("train_loss", loss)
 
         self.train_step_idx += 1
+        if self.train_step_idx % 20 == 0:
+            plot_batch_contours(self.logger.experiment, contours, contours_hat,
+                                self.train_step_idx, "train")
 
         return {"loss": loss}
 
@@ -172,11 +187,14 @@ class Diffusion(pl.LightningModule):
             OrderedDict: {"loss"}
         """
 
-        loss = self(contours)
+        loss, contours_hat = self(contours)
         # log the training loss
         self.log("val_loss", loss)
 
         self.val_step_idx += 1
+        if self.train_step_idx % 20 == 0:
+            plot_batch_contours(self.logger.experiment, contours, contours_hat,
+                                self.train_step_idx, "val")
 
         return {"loss": loss, "contours": contours}
 
@@ -196,6 +214,6 @@ class Diffusion(pl.LightningModule):
 
         # plot and listen to the results
         plot_batch_contours(self.logger.experiment, expressive_contours,
-                            contours, self.val_step_idx)
+                            contours, self.val_step_idx, "sample")
         listen_batch_contours(self.logger.experiment, expressive_audio,
                               self.val_step_idx)
