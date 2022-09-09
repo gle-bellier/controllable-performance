@@ -6,21 +6,25 @@ from models.blocks.conv_block import ConvBlock
 
 class ResNetBlock(nn.Module):
 
-    def __init__(self, input_length: int, in_c: int) -> None:
+    def __init__(self, input_length: int, in_c: int,
+                 activation: callable) -> None:
         """Initialize ResNetBlock.
 
         Args:
             input_length (int): length L of the sample of shape (B C L).
             in_c (int): number of input channels.
+            activation (callable): activation function.
         """
         super(ResNetBlock, self).__init__()
-        self.main = nn.Sequential(ConvBlock(input_length, in_c, in_c),
-                                  ConvBlock(input_length, in_c, in_c))
+        self.main = nn.Sequential(
+            ConvBlock(input_length, in_c, in_c, activation),
+            ConvBlock(input_length, in_c, in_c, activation))
         self.res = nn.Sequential(
             nn.Conv1d(in_channels=in_c,
                       out_channels=in_c,
-                      kernel_size=1,
-                      padding=0), nn.LeakyReLU())
+                      kernel_size=3,
+                      padding=1,
+                      dilation=1), activation())
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Compute pass forward.

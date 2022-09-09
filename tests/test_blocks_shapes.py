@@ -88,6 +88,31 @@ def test_conv_block_shape(input_shape: Tuple[int], input_length: int,
 
     x = torch.randn(input_shape)
 
-    conv = ConvBlock(input_length, in_c, out_c)
+    conv = ConvBlock(input_length, in_c, out_c, torch.nn.LeakyReLU)
+
+    assert conv(x).shape == expected
+
+
+@pytest.mark.parametrize("input_shape, input_length, in_c, expected",
+                         [((13, 2, 2048), 2048, 2, (13, 2, 2048)),
+                          ((13, 4, 512), 512, 4, (13, 4, 512)),
+                          ((13, 32, 4096), 4096, 32, (13, 32, 4096))])
+def test_resnet_block_shape(input_shape: Tuple[int], input_length: int,
+                            in_c: int, expected: Tuple[int]) -> None:
+    """Test shape of output of convolutional block.
+
+    Args:
+        input_shape (Tuple[int]): input shape (B C_in L_in).
+        input_length (int): length L_in of the input tensor.
+        in_c (int): number of input channels used for convolutions.
+        out_c (int): number of output channels used for convolutions.
+        expected (Tuple[int]): expected output shape (B C_out L_in)
+    """
+
+    from models.blocks.resnet_block import ResNetBlock
+
+    x = torch.randn(input_shape)
+
+    conv = ResNetBlock(input_length, in_c, torch.nn.LeakyReLU)
 
     assert conv(x).shape == expected

@@ -4,25 +4,27 @@ import torch.nn as nn
 
 class ConvBlock(nn.Module):
 
-    def __init__(self, input_length: int, in_c: int, out_c: int) -> None:
+    def __init__(self, input_length: int, in_c: int, out_c: int,
+                 activation: callable) -> None:
         """Initialize ConvBlock.
 
         Args:
             input_length (int): length L of the input of shape (B C L).
             in_c (int): number of input channels in the convolution.
             out_c (int): number of output channels in the convolution.
+            activation (callable): activation function.
         """
         super(ConvBlock, self).__init__()
         self.input_length = input_length
         #self.ln = nn.LayerNorm([channels, input_length])
 
-        self.gn = nn.GroupNorm(num_groups=1, num_channels=in_c)
         self.conv = nn.Conv1d(in_channels=in_c,
                               out_channels=out_c,
                               kernel_size=3,
                               stride=1,
                               padding=self.get_padding(3, 1, 1))
-        self.swish = nn.GELU()
+        self.gn = nn.GroupNorm(num_groups=1, num_channels=out_c)
+        self.activation = activation()
 
     def get_padding(self, kernel_size: int, stride: int, dilation: int) -> int:
         """Return size of the padding needed.
@@ -45,6 +47,6 @@ class ConvBlock(nn.Module):
         Returns:
             torch.Tensor: output tensor of shape (B C L).
         """
+        x = self.conv(x)
         x = self.gn(x)
-        x = self.swish(x)
-        return self.conv(x)
+        return self.activation(x)
