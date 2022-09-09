@@ -38,3 +38,23 @@ def test_datamodule_element_shape():
 
     item = next(iter(train))
     assert item.shape == (batch_size, 2, sample_length)
+
+
+def test_datamodule_mean_contour_shape():
+    """Test the shape of the elements of datamodule.
+    """
+    from data.datamodule.datamodule import ContoursDataModule
+
+    dataset_path = "data/contours/expressive/extended"
+    sample_length = 1024
+    batch_size = 32
+    dm = ContoursDataModule(dataset_path,
+                            batch_size,
+                            num_workers=0,
+                            sample_length=sample_length,
+                            data_aug=False)
+
+    dm.setup()
+
+    mean = dm.get_mean_contours(batch_size)
+    assert mean.shape == (batch_size, 2, sample_length)
