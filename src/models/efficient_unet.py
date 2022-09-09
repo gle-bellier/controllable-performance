@@ -1,4 +1,3 @@
-from random import sample
 import numpy as np
 from typing import List
 import torch
@@ -35,9 +34,6 @@ class EfficientUnet(nn.Module):
                                   rff_dim=32,
                                   mlp_hidden_dims=h_dims)
 
-        self.pre = nn.Sequential(
-            nn.Conv1d(channels[0], channels[0], kernel_size=1, padding=0),
-            nn.LeakyReLU())
         self.dwn_blocks = nn.ModuleList([
             DownBlock(sample_length=sample_length,
                       input_length=input_length,
@@ -64,10 +60,6 @@ class EfficientUnet(nn.Module):
                 input_lengths[::-1], channels[-1:0:-1], channels[-2::-1],
                 strides[::-1], num_resnets[::-1], skip_co)
         ])
-        self.post = nn.Conv1d(channels[0],
-                              channels[0],
-                              kernel_size=1,
-                              padding=0)
 
     def forward(self, x: torch.Tensor, condition: torch.Tensor,
                 noise_scale: torch.Tensor) -> torch.Tensor:
@@ -86,7 +78,7 @@ class EfficientUnet(nn.Module):
         """
 
         noise_scale = self.noise_rff(noise_scale)
-        x = self.pre(x)
+
         dwn_outs = []
         # downsampling
         for dwn in self.dwn_blocks:
@@ -97,4 +89,4 @@ class EfficientUnet(nn.Module):
         for up, skip in zip(self.up_blocks, dwn_outs[::-1]):
             x = up(x, condition, noise_scale, skip)
 
-        return self.post(x)
+        return x
