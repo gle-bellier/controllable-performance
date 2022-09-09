@@ -24,6 +24,11 @@ class Sde():
         sigma = self.sigma(t)
         return mean * x + sigma * noise
 
+    def perturb_inv(self, x: torch.Tensor, z_hat: torch.Tensor,
+                    t: torch.Tensor) -> torch.Tensor:
+
+        return (x - self.sigma(t) * z_hat) / self.mean(t)
+
 
 class VpSdeSigmoid(Sde):
 
