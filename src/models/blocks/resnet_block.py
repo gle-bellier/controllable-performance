@@ -18,13 +18,15 @@ class ResNetBlock(nn.Module):
         super(ResNetBlock, self).__init__()
         self.main = nn.Sequential(
             ConvBlock(input_length, in_c, in_c, activation),
-            ConvBlock(input_length, in_c, in_c, activation))
+            ConvBlock(input_length, in_c, in_c, torch.nn.Identity))
         self.res = nn.Sequential(
             nn.Conv1d(in_channels=in_c,
                       out_channels=in_c,
                       kernel_size=3,
                       padding=1,
-                      dilation=1), activation())
+                      dilation=1), torch.nn.Identity())
+
+        self.activation = activation()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Compute pass forward.
@@ -35,4 +37,5 @@ class ResNetBlock(nn.Module):
         Returns:
             torch.Tensor: ouput tensor of shape (B C L).
         """
-        return self.main(x) + self.res(x)
+        x = self.main(x) + self.res(x)
+        return self.activation(x)
