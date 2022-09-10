@@ -4,17 +4,17 @@ from typing import List, Tuple
 
 
 @pytest.mark.parametrize(
-    "input_shape, channels, strides, num_resnets",
+    "input_shape, channels, factors, num_resnets",
     [((13, 2, 1024), [2, 4, 8, 16], [2, 2, 4], [1, 1, 3]),
      ((13, 2, 1024), [2, 4, 8, 8, 16], [2, 2, 4, 8], [1, 1, 3, 5])])
 def test_efficient_unet_shape(input_shape: Tuple[int], channels: List[int],
-                              strides: List[int],
+                              factors: List[int],
                               num_resnets: List[int]) -> None:
     """Test shape of output of the model.
 
     Args:
         input_shape (Tuple[int]): input shape (B C_in L_in).
-        stride (int): stride of the up block.
+        factors (int): factors of the up block.
         expected (Tuple[int]): expected output shape (B C_out L_out).
     """
 
@@ -25,9 +25,10 @@ def test_efficient_unet_shape(input_shape: Tuple[int], channels: List[int],
 
     unet = EfficientUnet(sample_length=sample_length,
                          channels=channels,
-                         strides=strides,
+                         factors=factors,
                          num_resnets=num_resnets,
-                         conditional=True)
+                         conditional=True,
+                         activation=torch.nn.LeakyReLU)
 
     x = condition = torch.randn(input_shape)
     noise_scale = torch.randn(batch_size, 1)
@@ -36,17 +37,17 @@ def test_efficient_unet_shape(input_shape: Tuple[int], channels: List[int],
 
 
 @pytest.mark.parametrize(
-    "input_shape, channels, strides, num_resnets",
+    "input_shape, channels, factors, num_resnets",
     [((13, 2, 1024), [2, 4, 8, 16], [2, 2, 4], [1, 1, 3]),
      ((13, 2, 1024), [2, 4, 8, 8, 16], [2, 2, 4, 8], [1, 1, 3, 5])])
 def test_uncond_efficient_unet_shape(input_shape: Tuple[int],
-                                     channels: List[int], strides: List[int],
+                                     channels: List[int], factors: List[int],
                                      num_resnets: List[int]) -> None:
     """Test shape of output of the model.
 
     Args:
         input_shape (Tuple[int]): input shape (B C_in L_in).
-        stride (int): stride of the up block.
+        factors (int): factors of the up block.
         expected (Tuple[int]): expected output shape (B C_out L_out).
     """
 
@@ -57,9 +58,10 @@ def test_uncond_efficient_unet_shape(input_shape: Tuple[int],
 
     unet = EfficientUnet(sample_length=sample_length,
                          channels=channels,
-                         strides=strides,
+                         factors=factors,
                          num_resnets=num_resnets,
-                         conditional=False)
+                         conditional=False,
+                         activation=torch.nn.LeakyReLU)
 
     x = condition = torch.randn(input_shape)
     noise_scale = torch.randn(batch_size, 1)
