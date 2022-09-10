@@ -1,6 +1,6 @@
 import torch
 import pytest
-from typing import Tuple, List
+from typing import Tuple
 
 
 @pytest.mark.parametrize("input_shape, stride, expected",
@@ -25,7 +25,7 @@ def test_uncond_down_block_shape(input_shape: Tuple[int], stride: int,
     input_length = 1024
 
     down = DownBlock(sample_length, input_length, in_c, out_c, stride, 2,
-                     False)
+                     False, torch.nn.LeakyReLU)
 
     x = torch.randn(input_shape)
     condition = torch.randn(batch_size, 2, 1024)
@@ -55,7 +55,8 @@ def test_cond_down_block_shape(input_shape: Tuple[int], stride: int,
     sample_length = input_shape[-1]
     input_length = 1024
 
-    down = DownBlock(sample_length, input_length, in_c, out_c, stride, 2, True)
+    down = DownBlock(sample_length, input_length, in_c, out_c, stride, 2, True,
+                     torch.nn.LeakyReLU)
 
     x = torch.randn(input_shape)
     condition = torch.randn(batch_size, 2, 1024)
@@ -64,11 +65,11 @@ def test_cond_down_block_shape(input_shape: Tuple[int], stride: int,
     assert down(x, condition, noise_scale).shape == expected
 
 
-@pytest.mark.parametrize("input_shape, stride, expected",
+@pytest.mark.parametrize("input_shape, factor, expected",
                          [((13, 2, 1024), 2, (13, 16, 2048)),
                           ((13, 2, 512), 2, (13, 16, 1024)),
                           ((13, 2, 1024), 4, (13, 4, 4096))])
-def test_uncond_up_block_shape(input_shape: Tuple[int], stride: int,
+def test_uncond_up_block_shape(input_shape: Tuple[int], factor: int,
                                expected: Tuple[int]) -> None:
     """Test shape of output of upsampling block.
 
@@ -93,25 +94,26 @@ def test_uncond_up_block_shape(input_shape: Tuple[int], stride: int,
                  input_length=input_length,
                  in_c=in_c,
                  out_c=out_c,
-                 stride=stride,
+                 factor=factor,
                  num_resnets=2,
                  conditional=False,
-                 skip_co=True)
+                 skip_co=True,
+                 activation=torch.nn.LeakyReLU)
 
     assert up(x, condition, noise_scale, skip).shape == expected
 
 
-@pytest.mark.parametrize("input_shape, stride, expected",
+@pytest.mark.parametrize("input_shape, factor, expected",
                          [((13, 2, 1024), 2, (13, 16, 2048)),
                           ((13, 2, 512), 2, (13, 16, 1024)),
                           ((13, 2, 1024), 4, (13, 4, 4096))])
-def test_cond_up_block_shape(input_shape: Tuple[int], stride: int,
+def test_cond_up_block_shape(input_shape: Tuple[int], factor: int,
                              expected: Tuple[int]) -> None:
     """Test shape of output of upsampling block.
 
     Args:
         input_shape (Tuple[int]): input shape (B C_in L_in).
-        stride (int): stride of the up block.
+        factor (int): upsampling factor of the up block.
         expected (Tuple[int]): expected output shape (B C_out L_out).
     """
 
@@ -130,9 +132,10 @@ def test_cond_up_block_shape(input_shape: Tuple[int], stride: int,
                  input_length=input_length,
                  in_c=in_c,
                  out_c=out_c,
-                 stride=stride,
+                 factor=factor,
                  num_resnets=2,
                  conditional=True,
-                 skip_co=True)
+                 skip_co=True,
+                 activation=torch.nn.LeakyReLU)
 
     assert up(x, condition, noise_scale, skip).shape == expected

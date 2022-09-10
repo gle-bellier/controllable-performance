@@ -5,11 +5,48 @@ from models.blocks.conditional_emb import ConditionEmbedder
 from models.blocks.resnet_block import ResNetBlock
 
 
+class Downsampling(nn.Module):
+
+    def __init__(self, factor: int, in_c: int, out_c: int,
+                 activation: callable) -> None:
+        """Initialize downsampling module.
+
+        Args:
+            factor (int): downsampling factor.
+            in_c (int): number of input channels in convolution.
+            out_c (int): number of output channels in convolution.
+            activation (callable): activation function.
+        """
+        super().__init__()
+
+        self.down = nn.AvgPool1d(factor)
+        self.conv = nn.Conv1d(in_channels=in_c,
+                              out_channels=out_c,
+                              kernel_size=3,
+                              padding=1)
+
+        self.activation = activation()
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Compute downsampling.
+
+        Args:
+            x (torch.Tensor): input tensor of shape (B C L).
+
+        Returns:
+            torch.Tensor: output tensor of shape (B C L/factor)
+        """
+
+        x = self.down(x)
+        x = self.conv(x)
+        return self.activation(x)
+
+
 class DownBlock(nn.Module):
 
     def __init__(self, sample_length: int, input_length: int, in_c: int,
-                 out_c: int, stride: int, num_resnets: int,
-                 conditional: bool) -> None:
+                 out_c: int, factor: int, num_resnets: int, conditional: bool,
+                 activation: callable) -> None:
         """Initialize DownBlock.
 
         Args:
@@ -17,41 +54,30 @@ class DownBlock(nn.Module):
             input_length (int): length L of the input of shape (B C L). 
             in_c (int): number of input channels in convolution.
             out_c (int): number of ouput channels in convolution.
-            stride (int): stride of the convolution.
+            factor (int): downsampling factor.
             num_resnets (int): number of resnets in the downblock.
             conditional (bool): if set to True then conditional downsampling is 
             computed else unconditional downsampling.
+            activation (callable): activation function.
         """
         super(DownBlock, self).__init__()
         self.conditional = conditional
 
-        self.dw = nn.Sequential(
-            nn.Conv1d(in_channels=in_c,
-                      out_channels=out_c,
-                      kernel_size=3,
-                      stride=stride,
-                      padding=self.get_padding(3, stride, 1)), nn.LeakyReLU())
+        self.dw = Downsampling(factor=factor,
+                               in_c=in_c,
+                               out_c=out_c,
+                               activation=activation)
 
         self.embedder = ConditionEmbedder(sample_length=sample_length,
-                                          input_length=input_length // stride,
+                                          input_length=input_length // factor,
                                           in_c=out_c,
-                                          conditional=conditional)
+                                          conditional=conditional,
+                                          activation=activation)
         self.residual = nn.Sequential(*[
-            ResNetBlock(input_length=input_length // 2, in_c=out_c)
-            for _ in range(num_resnets)
+            ResNetBlock(input_length=input_length // 2,
+                        in_c=out_c,
+                        activation=activation) for _ in range(num_resnets)
         ])
-
-    def get_padding(self, kernel_size: int, stride: int, dilation: int) -> int:
-        """Return size of the padding needed.
-        Args:
-            kernel_size (int): kernel size of the convolutional layer
-            stride (int): stride of the convolutional layer
-            dilation (int): dilation of the convolutional layer
-        Returns:
-            int: padding
-        """
-        full_kernel = (kernel_size - 1) * dilation + 1
-        return full_kernel // 2
 
     def forward(self, x: torch.Tensor, condition: torch.Tensor,
                 noise_scale: torch.Tensor) -> torch.Tensor:

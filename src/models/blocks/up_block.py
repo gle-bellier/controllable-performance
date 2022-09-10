@@ -6,6 +6,42 @@ from models.blocks.resnet_block import ResNetBlock
 import numpy as np
 
 
+class Upsampling(nn.Module):
+
+    def __init__(self, factor: int, in_c: int, out_c: int,
+                 activation: callable) -> None:
+        """Initialize upsampling module.
+
+        Args:
+            factor (int): upsampling factor.
+            in_c (int): input channels.
+            out_c (int): output channels.
+            activation (callable): activation function.
+        """
+        super().__init__()
+
+        self.upsampling = nn.Upsample(scale_factor=factor, mode="linear")
+        self.conv = nn.Conv1d(in_channels=in_c,
+                              out_channels=out_c,
+                              kernel_size=3,
+                              padding=1)
+        self.activation = activation()
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Compute upsampling.
+
+        Args:
+            x (torch.Tensor): input tensor of shape (B C L).
+
+        Returns:
+            torch.Tensor: output tensor of shape (B C L*factor).
+        """
+
+        x = self.upsampling(x)
+        x = self.conv(x)
+        return self.activation(x)
+
+
 class UpBlock(nn.Module):
 
     def __init__(self,
@@ -13,10 +49,12 @@ class UpBlock(nn.Module):
                  input_length: int,
                  in_c: int,
                  out_c: int,
-                 stride: int,
+                 factor: int,
                  num_resnets: int,
                  conditional: bool,
-                 skip_co=True) -> None:
+                 activation: callable,
+                 skip_co=True,
+                 last=False) -> None:
         """Initialize UpBlock.
 
         Args:
@@ -24,13 +62,16 @@ class UpBlock(nn.Module):
             input_length (int): length L of the input of shape (B C L).
             in_c (int): number of input channels in the convolution.
             out_c (int): number of output channels in the convolution.
-            stride (int): stride of the convolution.
+            factor (int): interpolation factor.
             num_resnets (int): number of resnet in the upsampling block.
             conditional (bool): if set to True then the conditoning signal is 
+            activation (callable): activation function.
             taken into account in the ConditionEmbedder in addition to the 
             noise_scale.
             skip_co (bool): if block takes skip connection ouput as input.
             Default to True.
+            last (bool): if true then no activation function at the end. 
+            Default to False.
         """
         super(UpBlock, self).__init__()
         self.skip_co = skip_co
@@ -38,31 +79,23 @@ class UpBlock(nn.Module):
         self.embedder = ConditionEmbedder(sample_length=sample_length,
                                           input_length=input_length,
                                           in_c=in_c,
-                                          conditional=conditional)
+                                          conditional=conditional,
+                                          activation=activation)
         self.residual = nn.Sequential(*[
-            ResNetBlock(input_length=input_length, in_c=in_c)
+            ResNetBlock(
+                input_length=input_length, in_c=in_c, activation=activation)
             for _ in range(num_resnets)
         ])
-        self.up = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=in_c,
-                               out_channels=out_c,
-                               kernel_size=3,
-                               stride=stride,
-                               padding=self.get_padding(3, stride, 1),
-                               output_padding=stride - 1), nn.LeakyReLU())
 
-    def get_padding(self, kernel_size: int, stride: int, dilation: int) -> int:
-        """Return size of the padding needed.
-        Args:
-            kernel_size (int): kernel size of the convolutional layer
-            stride (int): stride of the convolutional layer
-            dilation (int): dilation of the convolutional layer
-        Returns:
-            int: padding
-        """
+        if last:
+            activation_last = torch.nn.Identity
+        else:
+            activation_last = activation
 
-        full_kernel = (kernel_size - 1) * dilation + 1
-        return full_kernel // 2
+        self.up = Upsampling(factor=factor,
+                             in_c=in_c,
+                             out_c=out_c,
+                             activation=activation_last)
 
     def forward(self, x: torch.Tensor, condition: torch.Tensor,
                 noise_scale: torch.Tensor, skip: torch.Tensor) -> torch.Tensor:
