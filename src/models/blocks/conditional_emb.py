@@ -51,11 +51,10 @@ class ConditionEmbedder(nn.Module):
             condition = torch.cat([contours, noise_scale], -1)
             # (B 2*N) -> (B N)
             condition = self.lin_condition(condition)
-            condition = self.activation(condition)
         else:
             condition = noise_scale
 
         gamma, beta = self.gamma_beta(condition)
         res = gamma * x + beta
 
-        return res + x
+        return self.activation(res + x)
