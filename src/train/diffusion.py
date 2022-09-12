@@ -140,7 +140,7 @@ class Diffusion(pl.LightningModule):
         condition = self.T(contours)
         condition = self.P(condition)
 
-        sample = self.sampler.sample(condition, n_steps=100)
+        sample = self.sampler.sample(condition, n_steps=50)
 
         # apply inverse processing
         sample = (self.P - 1)(sample)
