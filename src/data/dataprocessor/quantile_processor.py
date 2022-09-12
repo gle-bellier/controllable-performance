@@ -36,7 +36,7 @@ class QuantileProcessor(ContoursProcessor):
         self.output_distribution = output_distribution
         self.sample_length = sample_length
         # fix the violin pitch range and loudness range
-        self.f0_min, self.f0_max = 20, 90
+        self.f0_min, self.f0_max = 20, 120
         self.lo_min, self.lo_max = -9, 0
         super().__init__(data_range, train_path, ddsp_path)
 

@@ -89,7 +89,7 @@ class ContoursProcessor():
         f0 = 440 * torch.pow(2, (f0 - 69) / 12)
         # artificialy add 1.5db to the loudness contours
         f0 = torch.clip(f0, 10, 10000)
-        lo = torch.clip(lo + 1.5, -9, -3)
+        lo = torch.clip(lo + 1.5, -10, -1)
 
         return self.ddsp(f0, lo).squeeze(-1)
 
