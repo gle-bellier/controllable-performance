@@ -74,7 +74,7 @@ class DownBlock(nn.Module):
                                           conditional=conditional,
                                           activation=activation)
         self.residual = nn.Sequential(*[
-            ResNetBlock(input_length=input_length // 2,
+            ResNetBlock(input_length=input_length // factor,
                         in_c=out_c,
                         activation=activation) for _ in range(num_resnets)
         ])
