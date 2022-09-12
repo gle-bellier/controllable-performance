@@ -22,21 +22,9 @@ class ConvBlock(nn.Module):
                               out_channels=out_c,
                               kernel_size=3,
                               stride=1,
-                              padding=self.get_padding(3, 1, 1))
-        self.gn = nn.GroupNorm(num_groups=1, num_channels=out_c)
+                              padding=1)
+        self.gn = nn.GroupNorm(num_groups=4, num_channels=out_c)
         self.activation = activation()
-
-    def get_padding(self, kernel_size: int, stride: int, dilation: int) -> int:
-        """Return size of the padding needed.
-        Args:
-            kernel_size (int): kernel size of the convolutional layer
-            stride (int): stride of the convolutional layer
-            dilation (int): dilation of the convolutional layer
-        Returns:
-            int: padding
-        """
-        full_kernel = (kernel_size - 1) * dilation + 1
-        return full_kernel // 2
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Compute pass forward.
