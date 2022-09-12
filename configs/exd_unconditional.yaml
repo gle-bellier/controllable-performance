@@ -44,9 +44,9 @@ model:
           class_path: models.efficient_unet.EfficientUnet
           init_args:
             sample_length: 1024
-            channels: [2, 16, 32, 64, 128, 512, 1024]
-            strides: [1, 1, 2, 2, 2, 2]
-            num_resnets: [2, 2, 3, 3, 3, 5]
+            channels: [2, 16, 64, 128, 512, 1024]
+            factors: [1, 2, 2, 2, 2]
+            num_resnets: [2, 2, 3, 3, 3]
             conditional: false
         
         thresholding: "static"
@@ -58,7 +58,7 @@ data:
   class_path: data.datamodule.datamodule.ContoursDataModule
   init_args:
     dataset_path: "data/contours/expressive/extended" 
-    batch_size: 64
+    batch_size: 32
     num_workers: 32
     sample_length: 1024
     data_aug: false

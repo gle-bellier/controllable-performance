@@ -48,7 +48,7 @@ model:
           init_args:
             sample_length: 1024
             channels: [2, 16,  32, 64, 128, 512, 1024]
-            strides: [1, 1, 2, 2, 2, 2]
+            factors: [1, 1, 2, 2, 2, 2]
             num_resnets: [2, 2, 3, 3, 3, 5]
             conditional: true
         
@@ -61,7 +61,7 @@ data:
   class_path: data.datamodule.datamodule.ContoursDataModule
   init_args:
     dataset_path: "data/contours/expressive/urmp" 
-    batch_size: 64
+    batch_size: 128
     num_workers: 32
     sample_length: 1024
     data_aug: true
