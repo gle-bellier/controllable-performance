@@ -27,8 +27,7 @@ def test_efficient_unet_shape(input_shape: Tuple[int], channels: List[int],
                          channels=channels,
                          factors=factors,
                          num_resnets=num_resnets,
-                         conditional=True,
-                         activation=torch.nn.LeakyReLU)
+                         conditional=True)
 
     x = condition = torch.randn(input_shape)
     noise_scale = torch.randn(batch_size, 1)
@@ -60,8 +59,7 @@ def test_uncond_efficient_unet_shape(input_shape: Tuple[int],
                          channels=channels,
                          factors=factors,
                          num_resnets=num_resnets,
-                         conditional=False,
-                         activation=torch.nn.LeakyReLU)
+                         conditional=False)
 
     x = condition = torch.randn(input_shape)
     noise_scale = torch.randn(batch_size, 1)
