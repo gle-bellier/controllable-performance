@@ -30,7 +30,8 @@ def test_noise_embedder_shape(input_shape: Tuple[int],
     emb = ConditionEmbedder(sample_length,
                             input_length,
                             in_c,
-                            conditional=False)
+                            conditional=False,
+                            activation=torch.nn.LeakyReLU)
 
     assert emb(x, condition, noise_scale).shape == input_shape
 
@@ -63,7 +64,8 @@ def test_condition_embedder_shape(input_shape: Tuple[int],
     emb = ConditionEmbedder(sample_length,
                             input_length,
                             in_c,
-                            conditional=True)
+                            conditional=True,
+                            activation=torch.nn.LeakyReLU)
 
     assert emb(x, condition, noise_scale).shape == input_shape
 

@@ -1,7 +1,5 @@
-from random import sample
 import torch
 import torch.nn as nn
-from models.blocks.conv_block import ConvBlock
 from models.blocks.gamma_beta import GammaBeta
 
 
@@ -20,15 +18,16 @@ class ConditionEmbedder(nn.Module):
             activation (callable): activation function.
         """
         super(ConditionEmbedder, self).__init__()
-        self.noise_embedder = GammaBeta(512, in_c)
-        self.in_conv = ConvBlock(input_length, in_c, in_c, activation)
-        self.out_conv = ConvBlock(input_length, in_c, in_c, activation)
+        self.gamma_beta = GammaBeta(512, in_c)
 
         self.conditional = conditional
         if self.conditional:
-            self.contours_embedder = nn.Sequential(
-                ConvBlock(sample_length, 2, in_c, activation),
-                nn.Linear(sample_length, input_length), activation())
+            self.lin_contours = nn.Sequential(
+                nn.Linear(sample_length, 512),
+                activation(),
+            )
+            self.conv = nn.Sequential(
+                nn.Conv1d(3, 1, kernel_size=3, padding=1), activation())
 
     def forward(self, x: torch.Tensor, contours: torch.Tensor,
                 noise_scale: torch.Tensor) -> torch.Tensor:
@@ -44,11 +43,20 @@ class ConditionEmbedder(nn.Module):
         Returns:
             torch.Tensor: output tensor of shape (B C L). 
         """
+
         if self.conditional:
-            x = x - self.contours_embedder(contours)
+            # (B N) -> (B 1 N)
+            noise_scale = noise_scale.unsqueeze(-2)
+            # (B 2 sl) -> (B 2 N)
+            contours = self.lin_contours(contours)
+            # condition of shape (B 3 N)
+            condition = torch.cat([contours, noise_scale], -2)
+            # (B 3 N) -> (B N)
+            condition = self.conv(condition).squeeze(-2)
+        else:
+            condition = noise_scale
 
-        res = self.in_conv(x)
-        gamma, beta = self.noise_embedder(noise_scale)
-        res = gamma * res + beta
+        gamma, beta = self.gamma_beta(condition)
+        res = gamma * x + beta
 
-        return self.out_conv(res) + x
+        return res + x
