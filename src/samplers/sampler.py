@@ -190,7 +190,7 @@ class Sampler:
 
         s = torch.sort(x.abs())[0]
         index = int(x.shape[-1] * quantile) - 1
-        qv = s[:, index:index + 1]
+        qv = s[:, :, index:index + 1]
         return qv
 
     def dynamic_thresholding(self, x: torch.Tensor,
