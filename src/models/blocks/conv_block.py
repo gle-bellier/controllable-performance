@@ -16,14 +16,14 @@ class ConvBlock(nn.Module):
         """
         super(ConvBlock, self).__init__()
         self.input_length = input_length
-        #self.ln = nn.LayerNorm([channels, input_length])
+        self.ln = nn.LayerNorm([out_c, input_length])
 
         self.conv = nn.Conv1d(in_channels=in_c,
                               out_channels=out_c,
                               kernel_size=3,
                               stride=1,
                               padding=1)
-        self.gn = nn.GroupNorm(num_groups=4, num_channels=out_c)
+        #self.gn = nn.GroupNorm(num_groups=4, num_channels=out_c)
         self.activation = activation()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -36,5 +36,5 @@ class ConvBlock(nn.Module):
             torch.Tensor: output tensor of shape (B C L).
         """
         x = self.conv(x)
-        x = self.gn(x)
+        x = self.ln(x)
         return self.activation(x)
