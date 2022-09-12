@@ -19,15 +19,13 @@ class ConditionEmbedder(nn.Module):
         """
         super(ConditionEmbedder, self).__init__()
         self.gamma_beta = GammaBeta(512, in_c)
+        self.activation = activation()
 
         self.conditional = conditional
         if self.conditional:
-            self.lin_contours = nn.Sequential(
-                nn.Linear(sample_length, 512),
-                activation(),
-            )
-            self.conv = nn.Sequential(
-                nn.Conv1d(3, 1, kernel_size=3, padding=1), activation())
+            self.conv = nn.Conv1d(2, 1, kernel_size=3, padding=1)
+            self.lin_contours = nn.Linear(sample_length, 512)
+            self.lin_condition = nn.Linear(1024, 512)
 
     def forward(self, x: torch.Tensor, contours: torch.Tensor,
                 noise_scale: torch.Tensor) -> torch.Tensor:
@@ -45,14 +43,15 @@ class ConditionEmbedder(nn.Module):
         """
 
         if self.conditional:
-            # (B N) -> (B 1 N)
-            noise_scale = noise_scale.unsqueeze(-2)
-            # (B 2 sl) -> (B 2 N)
+            # (B 2 sl) -> (B sl)
+            contours = self.conv(contours).squeeze(-2)
+            # (B sl) -> (B N)
             contours = self.lin_contours(contours)
-            # condition of shape (B 3 N)
-            condition = torch.cat([contours, noise_scale], -2)
-            # (B 3 N) -> (B N)
-            condition = self.conv(condition).squeeze(-2)
+            # condition of shape (B 2*N)
+            condition = torch.cat([contours, noise_scale], -1)
+            # (B 2*N) -> (B N)
+            condition = self.lin_condition(condition)
+            condition = self.activation(condition)
         else:
             condition = noise_scale
 
