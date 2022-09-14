@@ -71,9 +71,7 @@ class DownBlock(nn.Module):
 
         self.embedder = ConditionEmbedder(sample_length=sample_length,
                                           input_length=input_length // factor,
-                                          in_c=out_c,
-                                          conditional=conditional,
-                                          activation=activation)
+                                          in_c=out_c)
         self.residual = nn.Sequential(*[
             ResNetBlock(input_length=input_length // factor,
                         in_c=out_c,
@@ -95,6 +93,6 @@ class DownBlock(nn.Module):
         """
 
         x = self.dw(x)
-        x = self.embedder(x, condition, noise_scale)
+        x = self.embedder(x, noise_scale)
 
         return self.residual(x)

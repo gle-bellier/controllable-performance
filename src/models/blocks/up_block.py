@@ -78,9 +78,7 @@ class UpBlock(nn.Module):
         self.num_resnets = num_resnets
         self.embedder = ConditionEmbedder(sample_length=sample_length,
                                           input_length=input_length,
-                                          in_c=in_c,
-                                          conditional=conditional,
-                                          activation=activation)
+                                          in_c=in_c)
         self.residual = nn.Sequential(*[
             ResNetBlock(
                 input_length=input_length, in_c=in_c, activation=activation)
@@ -116,6 +114,6 @@ class UpBlock(nn.Module):
             if self.num_resnets > 3:
                 skip = skip / np.sqrt(2)
             x = x + skip
-        x = self.embedder(x, condition, noise_scale)
+        x = self.embedder(x, noise_scale)
         x = self.residual(x)
         return self.up(x)

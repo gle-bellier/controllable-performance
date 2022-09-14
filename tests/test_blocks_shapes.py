@@ -27,13 +27,9 @@ def test_noise_embedder_shape(input_shape: Tuple[int],
     condition = torch.randn(condition_shape)
     noise_scale = torch.randn(input_shape[0], 512)
 
-    emb = ConditionEmbedder(sample_length,
-                            input_length,
-                            in_c,
-                            conditional=False,
-                            activation=torch.nn.LeakyReLU)
+    emb = ConditionEmbedder(sample_length, input_length, in_c)
 
-    assert emb(x, condition, noise_scale).shape == input_shape
+    assert emb(x, noise_scale).shape == input_shape
 
 
 @pytest.mark.parametrize(
@@ -61,13 +57,9 @@ def test_condition_embedder_shape(input_shape: Tuple[int],
     condition = torch.randn(condition_shape)
     noise_scale = torch.randn(input_shape[0], 512)
 
-    emb = ConditionEmbedder(sample_length,
-                            input_length,
-                            in_c,
-                            conditional=True,
-                            activation=torch.nn.LeakyReLU)
+    emb = ConditionEmbedder(sample_length, input_length, in_c)
 
-    assert emb(x, condition, noise_scale).shape == input_shape
+    assert emb(x, noise_scale).shape == input_shape
 
 
 @pytest.mark.parametrize("input_shape, input_length, in_c, out_c, expected",
