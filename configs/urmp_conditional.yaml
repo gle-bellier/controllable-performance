@@ -18,8 +18,8 @@ trainer:
   gpus:
     - 0
   auto_lr_find: false
-  log_every_n_steps: 1
-  check_val_every_n_epoch: 10
+  log_every_n_steps: 50
+  check_val_every_n_epoch: 50
   track_grad_norm: 2
   gradient_clip_algorithm: "norm"
   gradient_clip_val: 5.
@@ -31,7 +31,7 @@ model:
       class_path: data.dataprocessor.minmax_processor.MinMaxProcessor
       init_args:
         data_range: [-1, 1]
-        train_path: "data/contours/expressive/urmp/train.pickle" 
+        train_path: "data/contours/expressive/urmp/train_aug.pickle" 
         ddsp_path: "ddsp_violin.ts"
     transform:
       class_path: data.transforms.blur.Blur
@@ -42,14 +42,14 @@ model:
       class_path: samplers.ode_sampler.ODESampler
       init_args:
         sde:
-          class_path: sde.sde.SubVpSdeCos
+          class_path: sde.sde.VpSdeCos
         model:
           class_path: models.efficient_unet.EfficientUnet
           init_args:
             sample_length: 1024
-            channels: [2, 16,  32, 64, 128, 512, 1024]
-            factors: [1, 1, 2, 2, 2, 2]
-            num_resnets: [2, 2, 3, 3, 3, 5]
+            channels: [2, 16, 32, 64, 256, 512, 1024]
+            factors: [1, 1, 1, 2, 2, 2]
+            num_resnets: [1, 1, 2, 2, 2, 3]
             conditional: true
         
         thresholding: "static"
@@ -62,6 +62,6 @@ data:
   init_args:
     dataset_path: "data/contours/expressive/urmp" 
     batch_size: 128
-    num_workers: 32
+    num_workers: 64
     sample_length: 1024
     data_aug: true
