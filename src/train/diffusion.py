@@ -168,7 +168,7 @@ class Diffusion(pl.LightningModule):
         self.log("train_loss", loss)
 
         self.train_step_idx += 1
-        if self.train_step_idx % 20 == 0:
+        if self.train_step_idx % 50 == 0:
             plot_batch_contours(self.logger.experiment, contours, contours_hat,
                                 self.train_step_idx, "train")
 
@@ -192,7 +192,7 @@ class Diffusion(pl.LightningModule):
         self.log("val_loss", loss)
 
         self.val_step_idx += 1
-        if self.train_step_idx % 20 == 0:
+        if self.train_step_idx % 50 == 0:
             plot_batch_contours(self.logger.experiment, contours, contours_hat,
                                 self.train_step_idx, "val")
 
