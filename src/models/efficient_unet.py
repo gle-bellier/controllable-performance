@@ -3,7 +3,7 @@ from typing import List
 import torch
 import torch.nn as nn
 
-from models.blocks import RFFBlock, UpBlock, DownBlock
+from models.blocks import RFFBlock, UpBlock, DownBlock, Bottleneck
 
 
 class EfficientUnet(nn.Module):
@@ -36,6 +36,7 @@ class EfficientUnet(nn.Module):
                                   rff_dim=32,
                                   mlp_hidden_dims=h_dims)
 
+        # Downsampling branch
         self.dwn_blocks = nn.ModuleList([
             DownBlock(sample_length=sample_length,
                       input_length=input_length,
@@ -43,12 +44,21 @@ class EfficientUnet(nn.Module):
                       out_c=out_c,
                       factor=factor,
                       num_resnets=n,
-                      conditional=conditional,
                       activation=activation)
             for input_length, in_c, out_c, factor, n in zip(
                 input_lengths, channels[:-1], channels[1:], factors,
                 num_resnets)
         ])
+
+        # Bottleneck
+        self.bottleneck = Bottleneck(sample_length=sample_length,
+                                     input_length=input_lengths[-1],
+                                     in_c=channels[-1],
+                                     hidden_c=64,
+                                     conditional=conditional,
+                                     activation=activation)
+
+        # Upsampling branch
         skip_co = [True] * (len(factors) - 1) + [False]
         last = [False] * (len(factors) - 1) + [True]
         self.up_blocks = nn.ModuleList([
@@ -58,7 +68,6 @@ class EfficientUnet(nn.Module):
                     out_c=out_c,
                     factor=factor,
                     num_resnets=n,
-                    conditional=conditional,
                     skip_co=sc,
                     last=last,
                     activation=activation)
@@ -88,11 +97,14 @@ class EfficientUnet(nn.Module):
         dwn_outs = []
         # downsampling
         for dwn in self.dwn_blocks:
-            x = dwn(x, condition, noise_scale)
+            x = dwn(x, noise_scale)
             dwn_outs += [x]
+
+        # bottleneck
+        x = self.bottleneck(x, condition)
 
         # upsampling
         for up, skip in zip(self.up_blocks, dwn_outs[::-1]):
-            x = up(x, condition, noise_scale, skip)
+            x = up(x, noise_scale, skip)
 
         return x
