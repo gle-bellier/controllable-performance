@@ -99,7 +99,7 @@ class QuantileProcessor(ContoursProcessor):
                         "c (b l) 1 -> b c l",
                         l=self.sample_length)
 
-        return torch.tensor(out).type_as(x)
+        return torch.as_tensor(out).type_as(x)
 
     def inverse_transform(self, x: torch.Tensor) -> torch.Tensor:
         """Apply inverse transform (i.e. inverse_transform(transform(x)) =x
@@ -126,4 +126,4 @@ class QuantileProcessor(ContoursProcessor):
 
         out = rearrange([f0, lo], " c (b l) 1 -> b c l", l=self.sample_length)
 
-        return torch.tensor(out).type_as(x)
+        return torch.as_tensor(out).type_as(x)

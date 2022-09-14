@@ -26,7 +26,7 @@ class Blur(ConditionTransform):
         kernel = self.gaussian(time, sample_length // 2, sigma)
         M = lin.toeplitz(kernel)
         M = np.roll(M, sample_length // 2, axis=0)
-        return torch.Tensor(M)
+        return torch.from_numpy(M)
 
     def transform(self, x: torch.Tensor) -> torch.Tensor:
         """Apply transform to a input tensor.
