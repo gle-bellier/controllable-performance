@@ -9,8 +9,10 @@ from utils.pickle_tools import read_from_pickle
 
 class ContoursProcessor():
 
-    def __init__(self, data_range: List[float], train_path: str,
-                 ddsp_path: str) -> None:
+    def __init__(self,
+                 data_range: List[float],
+                 train_path: str,
+                 ddsp_path=None) -> None:
         super().__init__()
         self.min, self.max = data_range
         self.train_path = pathlib.Path(train_path)
@@ -91,7 +93,11 @@ class ContoursProcessor():
         f0 = torch.clip(f0, 10, 10000)
         lo = torch.clip(lo + 1.5, -10, -1)
 
-        return self.ddsp(f0, lo).squeeze(-1)
+        if self.ddsp is None:
+            sr = 16000
+            return torch.zeros(f0.shape[0], f0.shape[1] * sr)
+        else:
+            return self.ddsp(f0, lo).squeeze(-1)
 
     def fit(self):
         """Fit the scaler to the training dataset.
