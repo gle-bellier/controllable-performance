@@ -46,7 +46,7 @@ class Downsampling(nn.Module):
 class DownBlock(nn.Module):
 
     def __init__(self, sample_length: int, input_length: int, in_c: int,
-                 out_c: int, factor: int, num_resnets: int, conditional: bool,
+                 out_c: int, factor: int, num_resnets: int,
                  activation: Callable) -> None:
         """Initialize DownBlock.
 
@@ -57,12 +57,9 @@ class DownBlock(nn.Module):
             out_c (int): number of ouput channels in convolution.
             factor (int): downsampling factor.
             num_resnets (int): number of resnets in the downblock.
-            conditional (bool): if set to True then conditional downsampling is 
-            computed else unconditional downsampling.
             activation (Callable): activation function.
         """
         super(DownBlock, self).__init__()
-        self.conditional = conditional
 
         self.dw = Downsampling(factor=factor,
                                in_c=in_c,
@@ -78,14 +75,12 @@ class DownBlock(nn.Module):
                         activation=activation) for _ in range(num_resnets)
         ])
 
-    def forward(self, x: torch.Tensor, condition: torch.Tensor,
+    def forward(self, x: torch.Tensor,
                 noise_scale: torch.Tensor) -> torch.Tensor:
         """Compute pass forward.
 
         Args:
             x (torch.Tensor): input tensor of shape (B C_in L_in).
-            condition (torch.Tensor): condition tensor of shape (B C L)
-            with C=2, L=sample_length.
             noise_scale (torch.Tensor): noise scale of shape (B, 512).
 
         Returns:

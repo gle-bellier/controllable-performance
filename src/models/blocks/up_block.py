@@ -51,7 +51,6 @@ class UpBlock(nn.Module):
                  out_c: int,
                  factor: int,
                  num_resnets: int,
-                 conditional: bool,
                  activation: Callable,
                  skip_co=True,
                  last=False) -> None:
@@ -64,7 +63,6 @@ class UpBlock(nn.Module):
             out_c (int): number of output channels in the convolution.
             factor (int): interpolation factor.
             num_resnets (int): number of resnet in the upsampling block.
-            conditional (bool): if set to True then the conditoning signal is 
             activation (Callable): activation function.
             taken into account in the ConditionEmbedder in addition to the 
             noise_scale.
@@ -95,13 +93,12 @@ class UpBlock(nn.Module):
                              out_c=out_c,
                              activation=activation_last)
 
-    def forward(self, x: torch.Tensor, condition: torch.Tensor,
-                noise_scale: torch.Tensor, skip: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, noise_scale: torch.Tensor,
+                skip: torch.Tensor) -> torch.Tensor:
         """Compute pass forward.
 
         Args:
             x (torch.Tensor): input tensor of shape (B C L).
-            condition (torch.Tensor): condition tensor of shape (B 2 sample_length).
             noise_scale (torch.Tensor): noise scale embedding of shape
             (B N=512).
             skip (torch.Tensor): input tensor from skip connection
