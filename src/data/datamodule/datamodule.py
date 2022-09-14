@@ -100,8 +100,10 @@ class ContoursDataModule(pl.LightningDataModule):
             DataLoader: train dataloader.
         """
         return DataLoader(self.train,
+                          shuffle=True,
                           batch_size=self.batch_size,
-                          num_workers=self.num_workers)
+                          num_workers=self.num_workers,
+                          pin_memory=True)
 
     def val_dataloader(self) -> DataLoader:
         """Create and return the validation dataloader.
@@ -111,7 +113,8 @@ class ContoursDataModule(pl.LightningDataModule):
         """
         return DataLoader(self.val,
                           batch_size=self.batch_size,
-                          num_workers=self.num_workers)
+                          num_workers=self.num_workers,
+                          pin_memory=True)
 
     def test_dataloader(self) -> DataLoader:
         """Create and return the test dataloader.
@@ -121,4 +124,5 @@ class ContoursDataModule(pl.LightningDataModule):
         """
         return DataLoader(self.test,
                           batch_size=self.batch_size,
-                          num_workers=self.num_workers)
+                          num_workers=self.num_workers,
+                          pin_memory=True)
