@@ -1,18 +1,19 @@
 import torch
 import torch.nn as nn
+from typing import Callable
 
 
 class ConvBlock(nn.Module):
 
     def __init__(self, input_length: int, in_c: int, out_c: int,
-                 activation: callable) -> None:
+                 activation: Callable) -> None:
         """Initialize ConvBlock.
 
         Args:
             input_length (int): length L of the input of shape (B C L).
             in_c (int): number of input channels in the convolution.
             out_c (int): number of output channels in the convolution.
-            activation (callable): activation function.
+            activation (Callable): activation function.
         """
         super(ConvBlock, self).__init__()
         self.input_length = input_length

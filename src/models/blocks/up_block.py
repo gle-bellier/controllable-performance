@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+from typing import Callable
 from models.blocks.conditional_emb import ConditionEmbedder
 from models.blocks.resnet_block import ResNetBlock
 import numpy as np
@@ -9,14 +9,14 @@ import numpy as np
 class Upsampling(nn.Module):
 
     def __init__(self, factor: int, in_c: int, out_c: int,
-                 activation: callable) -> None:
+                 activation: Callable) -> None:
         """Initialize upsampling module.
 
         Args:
             factor (int): upsampling factor.
             in_c (int): input channels.
             out_c (int): output channels.
-            activation (callable): activation function.
+            activation (Callable): activation function.
         """
         super().__init__()
 
@@ -52,7 +52,7 @@ class UpBlock(nn.Module):
                  factor: int,
                  num_resnets: int,
                  conditional: bool,
-                 activation: callable,
+                 activation: Callable,
                  skip_co=True,
                  last=False) -> None:
         """Initialize UpBlock.
@@ -65,7 +65,7 @@ class UpBlock(nn.Module):
             factor (int): interpolation factor.
             num_resnets (int): number of resnet in the upsampling block.
             conditional (bool): if set to True then the conditoning signal is 
-            activation (callable): activation function.
+            activation (Callable): activation function.
             taken into account in the ConditionEmbedder in addition to the 
             noise_scale.
             skip_co (bool): if block takes skip connection ouput as input.

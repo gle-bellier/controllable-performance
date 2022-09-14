@@ -1,19 +1,19 @@
 import torch
 import torch.nn as nn
-
+from typing import Callable
 from models.blocks.conv_block import ConvBlock
 
 
 class ResNetBlock(nn.Module):
 
     def __init__(self, input_length: int, in_c: int,
-                 activation: callable) -> None:
+                 activation: Callable) -> None:
         """Initialize ResNetBlock.
 
         Args:
             input_length (int): length L of the sample of shape (B C L).
             in_c (int): number of input channels.
-            activation (callable): activation function.
+            activation (Callable): activation function.
         """
         super(ResNetBlock, self).__init__()
         self.main = nn.Sequential(

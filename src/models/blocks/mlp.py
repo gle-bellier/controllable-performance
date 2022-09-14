@@ -13,8 +13,8 @@ class MLP(nn.Module):
 
         Args:
             mlp_dimensions (List[int]): list of hidden dimensions.
-            non_linearity (callable), optional): activation function. Defaults to nn.LeakyReLU().
-            last_non_linearity (callable, optional): activation function of the last layer. Defaults to None.
+            non_linearity (Callable), optional): activation function. Defaults to nn.LeakyReLU().
+            last_non_linearity (Callable, optional): activation function of the last layer. Defaults to None.
         """
 
         super().__init__()

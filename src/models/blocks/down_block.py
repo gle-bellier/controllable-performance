@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from typing import Callable
 
 from models.blocks.conditional_emb import ConditionEmbedder
 from models.blocks.resnet_block import ResNetBlock
@@ -8,14 +9,14 @@ from models.blocks.resnet_block import ResNetBlock
 class Downsampling(nn.Module):
 
     def __init__(self, factor: int, in_c: int, out_c: int,
-                 activation: callable) -> None:
+                 activation: Callable) -> None:
         """Initialize downsampling module.
 
         Args:
             factor (int): downsampling factor.
             in_c (int): number of input channels in convolution.
             out_c (int): number of output channels in convolution.
-            activation (callable): activation function.
+            activation (Callable): activation function.
         """
         super().__init__()
 
@@ -46,7 +47,7 @@ class DownBlock(nn.Module):
 
     def __init__(self, sample_length: int, input_length: int, in_c: int,
                  out_c: int, factor: int, num_resnets: int, conditional: bool,
-                 activation: callable) -> None:
+                 activation: Callable) -> None:
         """Initialize DownBlock.
 
         Args:
@@ -58,7 +59,7 @@ class DownBlock(nn.Module):
             num_resnets (int): number of resnets in the downblock.
             conditional (bool): if set to True then conditional downsampling is 
             computed else unconditional downsampling.
-            activation (callable): activation function.
+            activation (Callable): activation function.
         """
         super(DownBlock, self).__init__()
         self.conditional = conditional

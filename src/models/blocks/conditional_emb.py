@@ -1,12 +1,13 @@
 import torch
 import torch.nn as nn
 from models.blocks.gamma_beta import GammaBeta
+from typing import Callable
 
 
 class ConditionEmbedder(nn.Module):
 
     def __init__(self, sample_length: int, input_length: int, in_c: int,
-                 conditional: bool, activation: callable) -> None:
+                 conditional: bool, activation: Callable) -> None:
         """Initialize ConditionalEmbs. Block for 
         conditional embedding.
 
@@ -15,7 +16,7 @@ class ConditionEmbedder(nn.Module):
             in_c (int): number of channels in the input tensor.
             conditional (bool): if set to True then conditional contours are taken 
             into account.
-            activation (callable): activation function.
+            activation (Callable): activation function.
         """
         super(ConditionEmbedder, self).__init__()
         self.gamma_beta = GammaBeta(512, in_c)
