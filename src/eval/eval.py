@@ -1,10 +1,11 @@
 import pytorch_lightning as pl
 import torch
 from pytorch_lightning.utilities.cli import LightningCLI
-import warnings
+
+from data.midi.midi_reader import MidiReader
 
 
-def main():
+def main(midi_path: str) -> None:
     cli = LightningCLI(pl.LightningModule,
                        pl.LightningDataModule,
                        parser_kwargs={
@@ -22,6 +23,11 @@ def main():
     )['state_dict']
     model = cli.model.load_state_dict(state_dict)
 
+    # get MIDI
+    midi_reader = MidiReader()
+    f0, lo, _, _, _ = midi_reader.get_contours(path=midi_path)
+
 
 if __name__ == "__main__":
-    main()
+    MIDI_FILE = "data/midi/midi_files/jupiter.mid"
+    main(midi_path=MIDI_FILE)
