@@ -4,7 +4,7 @@ from typing import List, Tuple
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import QuantileTransformer
-from pickle import dump, load
+from pickle import load
 
 
 class LoudnessTransform(BaseEstimator, TransformerMixin):

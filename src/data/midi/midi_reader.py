@@ -1,9 +1,8 @@
 import pretty_midi
 import numpy as np
 from typing import Tuple
-from pickle import load
 
-from diffusion.edit.loudness_scaler import LoudnessTransform
+from data.midi.velocity_to_loudness import LoudnessTransform
 
 
 class MidiReader:
@@ -26,8 +25,8 @@ class MidiReader:
 
         self.data = None
 
-        MIDI_PATH = "data/midi_files/midi_ref/"
-        CONTOURS_PATH = "data/data_contours/dataset_contours.pickle"
+        MIDI_PATH = "data/midi/midi_files/midi_ref/"
+        CONTOURS_PATH = "data/contours/expressive/extended/dataset.pickle"
         self.loudness_transform = LoudnessTransform(MIDI_PATH, CONTOURS_PATH)
 
     def __len__(self) -> int:
@@ -243,3 +242,11 @@ class MidiReader:
                 i_sample += 1
 
         return l_onsets, l_offsets, l_masks
+
+
+if __name__ == "__main__":
+
+    mr = MidiReader()
+    results = next(mr.get_contours("data/midi/midi_files/jupiter.mid"))
+
+    print(results)
