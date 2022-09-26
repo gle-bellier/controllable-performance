@@ -6,6 +6,8 @@ from einops import rearrange
 
 from data.midi.midi_reader import MidiReader
 
+from evaluation.metrics.accuracy import Midi_accuracy
+
 
 def main(midi_path: str) -> None:
     cli = LightningCLI(pl.LightningModule,
@@ -28,20 +30,23 @@ def main(midi_path: str) -> None:
 
     # get MIDI
     midi_reader = MidiReader()
+    # get MIDI accuracy metric
+    metric = Midi_accuracy()
 
     # loop on MIDI samples
     i_sample = 0
     for sample in midi_reader.get_contours(path=midi_path):
 
-        f0, lo, _, _, _ = sample
+        f0, lo, _, _, mask = sample
         f0 = torch.Tensor(f0).reshape(1, 1, -1)
         lo = torch.Tensor(lo).reshape(1, 1, -1)
+        mask = torch.from_numpy(mask)
 
         condition = torch.cat([f0, lo], -2).cuda()
 
         contours, audio = cli.model.sample(condition)
 
-        e_f0, e_lo = contours.split(1, 1)
+        e_f0, e_lo = rearrange(condition, "b c l -> c b l", c=2)
         e_f0 = e_f0.cpu().detach().numpy()
         f0 = f0.cpu().detach().numpy()
 
