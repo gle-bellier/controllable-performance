@@ -37,7 +37,6 @@ model:
       class_path: data.transforms.blur.Blur
       init_args:
         sample_length: 1024
-        sigma: 4
     sampler:
       class_path: samplers.ode_sampler.ODESampler
       init_args:
