@@ -10,11 +10,12 @@ class Blur(ConditionTransform):
     """Conditioning contours blurring method.
     """
 
-    def __init__(self, sample_length=1024, sigma=4.) -> None:
+    def __init__(self, sample_length=1024, sig_f0=4., sig_lo=8.) -> None:
         """Initialize ConditionTransform.
         """
         super().__init__()
-        self.M = self.blur_matrix(sample_length, sigma)
+        self.M_f0 = self.blur_matrix(sample_length, sig_f0)
+        self.M_lo = self.blur_matrix(sample_length, sig_lo)
 
     def gaussian(self, x, mu, sigma):
 
@@ -38,5 +39,14 @@ class Blur(ConditionTransform):
         Returns:
             torch.Tensor: modified condition.
         """
-        M = self.M.type_as(x)
-        return x @ M.T
+        f0, lo = x.split(1, -2)
+        M_f0 = self.M_f0.type_as(x)
+        M_lo = self.M_lo.type_as(x)
+
+        # apply blurring
+        f0 = f0 @ M_f0.T
+        lo = lo @ M_lo.T
+
+        out = torch.cat((f0, lo), dim=-2)
+
+        return out
