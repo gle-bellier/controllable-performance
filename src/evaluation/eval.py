@@ -69,10 +69,10 @@ def main(midi_path: str) -> None:
         ax2.plot(u_lo.squeeze(), label="midi")
         ax2.plot(g_lo.squeeze(), label="gen")
         plt.legend()
-        plt.savefig(f"generated/figures/exd_sample-{i_sample}.png")
+        plt.savefig(f"generated/figures/mod_exd_sample-{i_sample}.png")
 
         # save audio
-        torchaudio.save(f"generated/audio/exd_sample-{i_sample}.wav",
+        torchaudio.save(f"generated/audio/mod_exd_sample-{i_sample}.wav",
                         audio.cpu(), 16000)
         plt.clf()
 
