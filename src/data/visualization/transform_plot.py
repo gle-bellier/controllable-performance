@@ -1,4 +1,3 @@
-from random import sample
 import matplotlib.pyplot as plt
 
 from data.datamodule.datamodule import ContoursDataModule
